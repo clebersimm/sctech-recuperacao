@@ -18,7 +18,7 @@ Foi escolhido o documento markdown por manter a coerencia com o resto do desenvo
 
 | Sprint | Nome | Objetivo | Status |
 |---|---|---|---|
-| 0 | Preparação | Preparar repositório e ambiente e entender os dados | 🔄 |
+| 0 | Preparação | Preparar repositório e ambiente e entender os dados | ✅ |
 | 1 | Auditoria | Descobrir e contar os problemas dos dados | ⬜ |
 | 2 | Limpeza | Completar as funções que corrigem os problemas dos dados | ⬜ |
 | 3 | Montar as tabelas | Aplicar as regras de negócio e montar a fato e as 4 dimensões | ⬜ |
@@ -36,9 +36,9 @@ Foi escolhido o documento markdown por manter a coerencia com o resto do desenvo
 
 | # | Tarefa | Escopo | Status |
 |---|---|---|---|
-| 0.1 | Preparar o repositório | Criar o repositório no GitHub, guardar os arquivos do kit no Git e organizar as pastas (`docs/`, `sql/`, `powerbi/`), sem arquivos soltos na raiz | 🔄 |
-| 0.2 | Preparar o ambiente | Instalar as bibliotecas do `requirements.txt`, ter o PostgreSQL funcionando e preencher o `.env` | 🔄 |
-| 0.3 | Conhecer os dados | Abrir os 3 CSVs, descrever cada coluna e ver quantas linhas tem cada arquivo, os formatos de dinheiro, data e CNPJ, os acentos quebrados e as datas invertidas | ⬜ |
+| 0.1 | Preparar o repositório | Criar o repositório no GitHub, guardar os arquivos do kit no Git e organizar as pastas (`docs/`, `sql/`, `powerbi/`), sem arquivos soltos na raiz | ✅ |
+| 0.2 | Preparar o ambiente | Instalar as bibliotecas do `requirements.txt`, ter o PostgreSQL funcionando e preencher o `.env` | ✅ |
+| 0.3 | Conhecer os dados | Abrir os 3 CSVs, descrever cada coluna e ver quantas linhas tem cada arquivo, os formatos de dinheiro, data e CNPJ, os acentos quebrados e as datas invertidas. Resultado em [`docs/conhecendo-os-dados.md`](conhecendo-os-dados.md) | ✅ |
 
 ---
 
