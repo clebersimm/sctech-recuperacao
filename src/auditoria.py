@@ -24,7 +24,9 @@ COMO FUNCIONA (passo a passo)
 O QUE ESTA AUDITADO AQUI
 ------------------------
 - Item 1.1: documentos (CNPJ/CPF) e dinheiro/numeros.   -> funcoes auditar_documentos() e auditar_dinheiro()
-  (os itens 1.2 - datas e 1.3 - textos entram neste mesmo arquivo nas proximas tarefas)
+- Item 1.2: formatos de data e homologacao antes da publicacao.
+                                                         -> funcoes auditar_formatos_data() e auditar_datas_invertidas()
+  (o item 1.3 - textos entra neste mesmo arquivo na proxima tarefa)
 """
 
 import re
@@ -190,12 +192,136 @@ def auditar_dinheiro(arquivos):
 
 
 # ---------------------------------------------------------------------------------------------
+# ITEM 1.2 - DATAS: FORMATOS MISTURADOS E HOMOLOGACAO ANTES DA PUBLICACAO
+# ---------------------------------------------------------------------------------------------
+# Cada formato de data tem: (nome que aparece na tabela, molde para reconhecer, formato para ler a data).
+# No formato de leitura, %d = dia, %m = mes, %Y = ano com 4 digitos, %H:%M = hora e minuto.
+# Os formatos que comecam pelo dia sao lidos como padrao brasileiro: DIA antes do MES.
+FORMATOS_DATA = [
+    ("ISO com hora (2025-01-06T11:51:06)", r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", "%Y-%m-%dT%H:%M:%S"),
+    ("ISO (2025-10-31)", r"\d{4}-\d{2}-\d{2}", "%Y-%m-%d"),
+    ("BR com hora (02/01/2025 09:03)", r"\d{2}/\d{2}/\d{4} \d{2}:\d{2}", "%d/%m/%Y %H:%M"),
+    ("BR (03/01/2025)", r"\d{2}/\d{2}/\d{4}", "%d/%m/%Y"),
+    ("Com pontos (02.01.2025)", r"\d{2}\.\d{2}\.\d{4}", "%d.%m.%Y"),
+    ("Com traços (02-01-2025)", r"\d{2}-\d{2}-\d{4}", "%d-%m-%Y"),
+    ("Ano primeiro com barras (2025/01/08)", r"\d{4}/\d{2}/\d{2}", "%Y/%m/%d"),
+    ("Compacto (20250103)", r"\d{8}", "%Y%m%d"),
+]
+
+# Colunas de data de cada arquivo
+COLUNAS_DATA = {
+    "compras": ["data_publicacao", "data_abertura_proposta", "data_encerramento_proposta"],
+    "resultados": ["data_resultado", "data_cancelamento"],
+}
+
+
+def ler_datas(coluna):
+    """Transforma uma coluna de texto em datas (sem a hora), testando formato por formato.
+    Devolve (datas, formato): 'datas' e a coluna ja convertida (NaT quando nao deu para ler)
+    e 'formato' diz em qual formato cada registro foi reconhecido (vazio quando nenhum serviu).
+    Nao altera os arquivos: so serve para a contagem."""
+    texto = coluna.str.replace("\xa0", " ").str.strip()
+    # "datetime64[s]" guarda a data em segundos: assim cabem anos absurdos como 9999, que existem na base
+    datas = pd.Series(pd.NaT, index=coluna.index, dtype="datetime64[s]")
+    formato = pd.Series("", index=coluna.index)
+    for nome, molde, leitura in FORMATOS_DATA:
+        combina = texto.str.fullmatch(molde) & (formato == "")      # so quem ainda nao achou o formato
+        formato[combina] = nome
+        # errors="coerce": se a data for impossivel (31/02/2025), vira NaT em vez de dar erro
+        datas[combina] = pd.to_datetime(texto[combina], format=leitura, errors="coerce").astype("datetime64[s]")
+    return datas.dt.normalize(), formato                            # normalize() tira a hora
+
+
+def contar_data(coluna):
+    """Conta os formatos e os problemas de uma coluna de data e devolve um dicionario {problema: quantidade}.
+
+    - vazio ............ texto vazio ou nulo disfarcado ("N/A", "-")
+    - impossivel ....... o formato e conhecido, mas a data nao existe (ex.: 31/02/2025)
+    - ano absurdo ...... ano fora de 2000 a 2030 (ex.: 0001-01-01), a mesma faixa usada no src/limpeza.py
+    - fora do padrao ... preenchido, mas nao se encaixa em nenhum dos formatos conhecidos (deve ser 0)
+    """
+    texto = coluna.str.replace("\xa0", " ").str.strip()
+    vazio = texto.str.upper().isin(NULOS)
+    datas, formato = ler_datas(coluna)
+    reconhecido = formato != ""
+
+    resultado = {"Total": len(coluna), "Vazio": int(vazio.sum())}
+    for nome, _, _ in FORMATOS_DATA:
+        resultado[nome] = int((formato == nome).sum())
+    resultado["Data impossível"] = int((reconhecido & datas.isna()).sum())
+    resultado["Ano fora de 2000-2030"] = int(((datas.dt.year < 2000) | (datas.dt.year > 2030)).sum())
+    resultado["Fora do padrão"] = int((~vazio & ~reconhecido).sum())
+    resultado["Data mais antiga"] = datas.min().strftime("%d/%m/%Y") if datas.notna().any() else "-"
+    resultado["Data mais nova"] = datas.max().strftime("%d/%m/%Y") if datas.notna().any() else "-"
+    return resultado
+
+
+def auditar_formatos_data(arquivos):
+    """Monta a tabela de formatos de data: uma COLUNA da tabela para cada coluna de data dos arquivos
+    (a tabela fica 'deitada', com os formatos nas linhas, para caber na tela)."""
+    contagens = {f"{arq}.{col}": contar_data(arquivos[arq][col])
+                 for arq, colunas in COLUNAS_DATA.items() for col in colunas}
+    problemas = list(next(iter(contagens.values())))
+    linhas = [[p] + [contagens[c][p] for c in contagens] for p in problemas]
+    return tabela_markdown(["Formato / problema"] + [f"`{c}`" for c in contagens], linhas)
+
+
+def auditar_datas_invertidas(compras, itens, resultados):
+    """Conta as homologacoes (resultados.data_resultado) com data ANTERIOR a publicacao do edital
+    (compras.data_publicacao). Compara so o dia, sem a hora: homologar no mesmo dia da publicacao e valido.
+
+    A contagem e feita em 4 niveis, porque cada etapa do projeto olha para um deles:
+    - todos os resultados ........................ o arquivo bruto inteiro
+    - resultados nao cancelados .................. os que podem ser escolhidos como vencedor (regra 2)
+    - itens com pelo menos 1 resultado invertido . quantos itens podem ficar sem data de homologacao (regra 7)
+    - contratacoes ............................... quantos editais tem o problema
+    O numero final de itens SEM data de homologacao na fato so e conhecido na Sprint 3,
+    depois de escolher o vencedor de cada item."""
+    publicacao, _ = ler_datas(compras["data_publicacao"])
+    homologacao, _ = ler_datas(resultados["data_resultado"])
+    tabela = pd.DataFrame({
+        "numero_controle_pncp": resultados["numero_controle_pncp"],
+        "numero_item": resultados["numero_item"],
+        "homologacao": homologacao,
+        "cancelado": resultados["data_cancelamento"].str.strip() != "",
+    }).merge(pd.DataFrame({"numero_controle_pncp": compras["numero_controle_pncp"], "publicacao": publicacao}),
+             on="numero_controle_pncp", how="left")
+    tabela["invertida"] = tabela["homologacao"] < tabela["publicacao"]
+    tabela["mesmo_dia"] = tabela["homologacao"] == tabela["publicacao"]
+    tabela["dias"] = (tabela["publicacao"] - tabela["homologacao"]).dt.days
+
+    invertidas = tabela[tabela["invertida"]]
+    validos = tabela[~tabela["cancelado"]]
+    itens_invertidos = invertidas[["numero_controle_pncp", "numero_item"]].drop_duplicates()
+    linhas = [
+        ["Resultados com homologação antes da publicação", int(tabela["invertida"].sum()), len(tabela)],
+        ["... entre os resultados não cancelados", int(validos["invertida"].sum()), len(validos)],
+        ["Itens com pelo menos 1 resultado invertido", len(itens_invertidos), len(itens)],
+        ["Contratações com pelo menos 1 resultado invertido",
+         int(invertidas["numero_controle_pncp"].nunique()), len(compras)],
+        ["Resultados homologados no mesmo dia da publicação (válidos, ciclo de 0 dia)",
+         int(tabela["mesmo_dia"].sum()), len(tabela)],
+        ["Resultados sem data de publicação ou de homologação para comparar",
+         int((tabela["homologacao"].isna() | tabela["publicacao"].isna()).sum()), len(tabela)],
+    ]
+    texto = tabela_markdown(["Situação", "Registros", "De um total de"], linhas)
+    if len(invertidas):
+        texto += (f"\nQuanto antes da publicação: de {int(invertidas['dias'].min())} a "
+                  f"{int(invertidas['dias'].max())} dias (mediana de {int(invertidas['dias'].median())} dia(s)).\n")
+    return texto
+
+
+# ---------------------------------------------------------------------------------------------
 def main():
     arquivos = {nome: ler(nome) for nome in ["compras", "itens", "resultados"]}
     print("## 1.1 Documentos (CNPJ/CPF)\n")
     print(auditar_documentos(arquivos["compras"], arquivos["resultados"]))
     print("## 1.1 Dinheiro e números\n")
     print(auditar_dinheiro(arquivos))
+    print("## 1.2 Formatos de data\n")
+    print(auditar_formatos_data(arquivos))
+    print("## 1.2 Homologação antes da publicação\n")
+    print(auditar_datas_invertidas(arquivos["compras"], arquivos["itens"], arquivos["resultados"]))
 
 
 if __name__ == "__main__":
