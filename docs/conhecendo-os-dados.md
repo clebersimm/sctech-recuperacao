@@ -177,8 +177,9 @@ As colunas de data de `compras.csv` e a `data_resultado` misturam **7 formatos**
 | `resultados.porte` | 469 | N/A, n/a, NULL, Null, `-`, `0`, SEM INFORMAÇÃO, NÃO INFORMADO |
 
 - Os valores aparecem em **maiúsculas e minúsculas variadas** (`NULL`, `Null`, `n/a`). A comparação deve ignorar maiúsculas.
-- Em `porte`, o valor **"Não Informado"** (4.415, a maioria de PF) é uma categoria do próprio PNCP. Vale decidir na Sprint 1 se ele conta junto com os vazios disfarçados. "NÃO INFORMADO" em maiúsculas aparece misturado a ele.
-- "Não se aplica" em `modo_disputa` (904) e `criterio_julgamento` (1.883) é uma informação legítima, não um vazio.
+- Em `porte`, o valor **"Não Informado"** (4.415, a maioria de PF) aparece misturado com "NÃO INFORMADO" em maiúsculas. Como a comparação ignora maiúsculas, **os dois contam como vazio disfarçado**. O resultado final é o mesmo: no `porte_descricao` eles viram "Não informado".
+- **"Não se aplica"** também conta como vazio disfarçado. Ele aparece em `modo_disputa` (904), `criterio_julgamento` (1.883), `categoria_item` (7.077) e `porte` (9). O enunciado (desafio 4) coloca "NÃO SE APLICA" na lista de vazios disfarçados, e a lista do `src/limpeza.py` segue a mesma regra.
+- *Correção feita na Sprint 1:* a primeira versão deste documento dizia que "Não se aplica" era uma informação legítima. A auditoria seguiu o enunciado, e as contagens oficiais estão no [README](../README.md#vazios-disfarçados).
 
 ### 4.2 Acentos quebrados (UTF-8 lido como Latin-1)
 

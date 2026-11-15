@@ -51,7 +51,7 @@ Foi escolhido o documento markdown por manter a coerencia com o resto do desenvo
 |---|---|---|---|
 | 1.1 | Contar problemas de documentos e dinheiro | CNPJ/CPF com pontos, traços e zeros perdidos; dinheiro escrito com R$, ponto e vírgula trocados e negativos entre parênteses. Script em [`src/auditoria.py`](../src/auditoria.py) e resultado no [README](../README.md#auditoria-dos-dados) | ✅ |
 | 1.2 | Contar problemas de datas | Datas escritas em formatos diferentes e homologações com data anterior à publicação do edital. Script em [`src/auditoria.py`](../src/auditoria.py) e resultado no [README](../README.md#datas-em-formatos-diferentes) | ✅ |
-| 1.3 | Contar problemas de texto | Vazios disfarçados ("N/A", "NULL", "-", "0", "SEM INFORMAÇÃO"), acentos quebrados (Ã§, Ã£) e o mesmo órgão ou fornecedor escrito de jeitos diferentes | ⬜ |
+| 1.3 | Contar problemas de texto | Vazios disfarçados ("N/A", "NULL", "-", "0", "SEM INFORMAÇÃO"), acentos quebrados (Ã§, Ã£) e o mesmo órgão ou fornecedor escrito de jeitos diferentes. Script em [`src/auditoria.py`](../src/auditoria.py) e resultado no [README](../README.md#vazios-disfarçados) | ✅ |
 | 1.4 | Registrar no README | Montar a lista dos problemas encontrados, com a quantidade de registros de cada um | ⬜ |
 
 ---

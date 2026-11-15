@@ -26,7 +26,9 @@ O QUE ESTA AUDITADO AQUI
 - Item 1.1: documentos (CNPJ/CPF) e dinheiro/numeros.   -> funcoes auditar_documentos() e auditar_dinheiro()
 - Item 1.2: formatos de data e homologacao antes da publicacao.
                                                          -> funcoes auditar_formatos_data() e auditar_datas_invertidas()
-  (o item 1.3 - textos entra neste mesmo arquivo na proxima tarefa)
+- Item 1.3: vazios disfarcados, acentos quebrados, caracteres invisiveis e nomes escritos de jeitos diferentes.
+                                -> funcoes auditar_vazios(), auditar_acentos_invisiveis(), exemplos_acento()
+                                   e auditar_grafias()
 """
 
 import re
@@ -312,6 +314,143 @@ def auditar_datas_invertidas(compras, itens, resultados):
 
 
 # ---------------------------------------------------------------------------------------------
+# ITEM 1.3 - TEXTO: VAZIOS DISFARCADOS, ACENTOS QUEBRADOS, CARACTERES INVISIVEIS E NOMES REPETIDOS
+# ---------------------------------------------------------------------------------------------
+# Colunas que NAO sao texto livre: as de dinheiro/numero e as de data ja foram auditadas nos itens 1.1 e 1.2.
+# Nelas o "0" e um numero de verdade, por isso ficam de fora da contagem de vazios disfarcados.
+COLUNAS_NAO_TEXTO = {col for cols in COLUNAS_NUMERICAS.values() for col in cols} | \
+                    {col for cols in COLUNAS_DATA.values() for col in cols}
+
+# Acento quebrado: o texto foi gravado em UTF-8 e lido como Latin-1, entao "ç" vira "Ã§" e "ã" vira "Ã£".
+# O sinal e um "Ã" ou "Â" seguido de um caractere da faixa \x80-\xBF (onde ficam "§", "£", "©", "º"...).
+ACENTO_QUEBRADO = re.compile(r"[ÃÂ][\x80-\xbf]")
+
+# Caracteres invisiveis ou que "sujam" o texto sem aparecer na tela
+INVISIVEIS = {
+    "NBSP (espaço sem quebra, \\xa0)": "\xa0",
+    "TAB": "\t",
+    "Quebra de linha dentro do texto": "\n",
+    "Largura zero (\\u200b, \\u200c, \\u200d, \\ufeff)": "[​‌‍﻿]",
+}
+
+
+def consertar_acento(texto):
+    """Mesma ideia da funcao do src/limpeza.py: desfaz a leitura errada (Latin-1 -> UTF-8).
+    Se o texto nao tem o problema, devolve como estava. Aqui so serve para medir o efeito da correcao."""
+    try:
+        return texto.encode("latin-1").decode("utf-8")
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        return texto
+
+
+def nome_padrao(coluna):
+    """Versao 'padronizada' de um nome, so para comparar grafias: sem invisiveis, acento consertado,
+    MAIUSCULAS, hifen com espaco dos dois lados e um unico espaco entre as palavras (as mesmas regras do
+    padronizar_nome() do src/limpeza.py).   '  Comando  da Aeronautica\\xa0' -> 'COMANDO DA AERONAUTICA'"""
+    return (coluna.str.replace(r"[​‌‍﻿]", "", regex=True)
+                  .map(consertar_acento)
+                  .str.upper()
+                  .str.replace("-", " - ", regex=False)
+                  .str.split().str.join(" "))
+
+
+def auditar_vazios(arquivos):
+    """Conta os vazios disfarcados em TODAS as colunas de texto dos 3 arquivos.
+    Um registro e vazio disfarcado quando, sem espacos nas pontas e em MAIUSCULAS, esta na lista NULOS
+    ("N/A", "NULL", "-", "0", "SEM INFORMAÇÃO", "NÃO INFORMADO", "NÃO SE APLICA"...).
+    O vazio de verdade (texto "") e contado a parte. So aparecem na tabela as colunas que tem algum dos dois."""
+    linhas = []
+    for nome_arquivo, df in arquivos.items():
+        for coluna in df.columns:
+            if coluna in COLUNAS_NAO_TEXTO:
+                continue
+            chave = df[coluna].str.replace("\xa0", " ").str.strip().str.upper()
+            vazio = chave == ""
+            disfarcado = chave.isin(NULOS - {""})
+            if vazio.any() or disfarcado.any():
+                valores = df.loc[disfarcado, coluna].str.strip().value_counts()
+                exemplos = ", ".join(f"`{v}` ({n})" for v, n in valores.items())
+                linhas.append([f"`{nome_arquivo}.{coluna}`", len(df), int(vazio.sum()),
+                               int(disfarcado.sum()), exemplos or "-"])
+    return tabela_markdown(["Coluna", "Total", "Vazio de verdade", "Vazio disfarçado",
+                            "Valores encontrados (quantidade)"], linhas)
+
+
+def auditar_acentos_invisiveis(arquivos):
+    """Conta, em cada coluna de texto, os registros com acento quebrado e com cada tipo de caractere invisivel.
+    Tambem conta os espacos sobrando (nas pontas ou repetidos no meio). So aparecem as colunas com algum problema."""
+    linhas = []
+    for nome_arquivo, df in arquivos.items():
+        for coluna in df.columns:
+            if coluna in COLUNAS_NAO_TEXTO:
+                continue
+            texto = df[coluna]
+            contagem = [int(texto.str.contains(ACENTO_QUEBRADO).sum())]
+            contagem += [int(texto.str.contains(molde).sum()) for molde in INVISIVEIS.values()]
+            contagem.append(int(texto.str.contains(r"^[ \xa0\t]|[ \xa0\t]$| {2,}").sum()))
+            if any(contagem):
+                linhas.append([f"`{nome_arquivo}.{coluna}`", len(df)] + contagem)
+    return tabela_markdown(["Coluna", "Total", "Acento quebrado"] + list(INVISIVEIS) + ["Espaços sobrando"], linhas)
+
+
+def exemplos_acento(arquivos, limite=5):
+    """Mostra alguns exemplos de acento quebrado e como ficam depois de consertados."""
+    linhas = []
+    for nome_arquivo, df in arquivos.items():
+        for coluna in df.columns:
+            if coluna in COLUNAS_NAO_TEXTO:
+                continue
+            quebrados = df[coluna][df[coluna].str.contains(ACENTO_QUEBRADO)]
+            if len(quebrados):
+                # pega so a primeira palavra quebrada, para o exemplo ficar curto
+                palavra = quebrados.iloc[0].split()
+                palavra = next(p for p in palavra if ACENTO_QUEBRADO.search(p))
+                linhas.append([f"`{nome_arquivo}.{coluna}`", f"`{palavra}`", f"`{consertar_acento(palavra)}`"])
+    return tabela_markdown(["Coluna", "Como está", "Depois de consertar"], linhas[:limite])
+
+
+def auditar_grafias(compras, resultados):
+    """O mesmo orgao ou fornecedor escrito de jeitos diferentes.
+
+    Para cada documento (CNPJ/CPF ja limpo do jeito do item 1.1), conta quantas grafias do nome existem:
+    - 'como veio' ........... o texto exatamente como esta no arquivo
+    - 'depois de padronizar'  o texto com acento consertado, em MAIUSCULAS e sem espacos sobrando
+    Se depois de padronizar sobra so 1 nome por documento, a padronizacao resolve o problema.
+
+    Tambem conta o caso contrario, importante para o ranking de orgaos (pergunta 4): o MESMO nome padronizado
+    com VARIOS CNPJ (unidades diferentes do mesmo orgao)."""
+    doc_orgao = compras["cnpj_orgao"].str.replace(r"\D", "", regex=True).str.zfill(14)
+    digitos = resultados["ni_fornecedor"].str.replace(r"\D", "", regex=True)
+    tipo = resultados["tipo_pessoa"]
+    doc_forn = digitos.copy()
+    doc_forn[tipo == "PJ"] = digitos[tipo == "PJ"].str.zfill(14)
+    doc_forn[tipo == "PF"] = digitos[tipo == "PF"].str.zfill(11)
+    doc_forn[tipo == "PE"] = resultados["ni_fornecedor"][tipo == "PE"].str.strip(" \xa0\t").str.upper()
+
+    casos = [
+        ("Órgão (`razao_social_orgao` por CNPJ)", doc_orgao, compras["razao_social_orgao"]),
+        ("Unidade (`nome_unidade` por CNPJ)", doc_orgao, compras["nome_unidade"]),
+        ("Fornecedor (`nome_fornecedor` por CNPJ/CPF)", doc_forn, resultados["nome_fornecedor"]),
+    ]
+    linhas = []
+    for nome, documento, coluna in casos:
+        bruto = pd.DataFrame({"doc": documento, "nome": coluna}).groupby("doc")["nome"].nunique()
+        padrao = pd.DataFrame({"doc": documento, "nome": nome_padrao(coluna)}).groupby("doc")["nome"].nunique()
+        linhas.append([nome, len(bruto), int((bruto > 1).sum()), int((padrao > 1).sum()),
+                       int(coluna.nunique()), int(nome_padrao(coluna).nunique())])
+    texto = tabela_markdown(["Caso", "Documentos distintos", "Com mais de 1 grafia (como veio)",
+                             "Com mais de 1 grafia (depois de padronizar)", "Nomes distintos (como veio)",
+                             "Nomes distintos (depois de padronizar)"], linhas)
+
+    # Mesmo nome padronizado, varios CNPJ (unidades do mesmo orgao)
+    por_nome = pd.DataFrame({"doc": doc_orgao, "nome": nome_padrao(compras["razao_social_orgao"])}) \
+        .groupby("nome")["doc"].nunique().sort_values(ascending=False)
+    texto += (f"\nÓrgãos (nome padronizado) com mais de 1 CNPJ: {int((por_nome > 1).sum())} de {len(por_nome)}. "
+              f"Maiores: " + ", ".join(f"{n} ({q} CNPJ)" for n, q in por_nome.head(3).items()) + ".\n")
+    return texto
+
+
+# ---------------------------------------------------------------------------------------------
 def main():
     arquivos = {nome: ler(nome) for nome in ["compras", "itens", "resultados"]}
     print("## 1.1 Documentos (CNPJ/CPF)\n")
@@ -322,6 +461,13 @@ def main():
     print(auditar_formatos_data(arquivos))
     print("## 1.2 Homologação antes da publicação\n")
     print(auditar_datas_invertidas(arquivos["compras"], arquivos["itens"], arquivos["resultados"]))
+    print("## 1.3 Vazios disfarçados\n")
+    print(auditar_vazios(arquivos))
+    print("## 1.3 Acentos quebrados e caracteres invisíveis\n")
+    print(auditar_acentos_invisiveis(arquivos))
+    print(exemplos_acento(arquivos))
+    print("## 1.3 Mesmo órgão ou fornecedor escrito de jeitos diferentes\n")
+    print(auditar_grafias(arquivos["compras"], arquivos["resultados"]))
 
 
 if __name__ == "__main__":
