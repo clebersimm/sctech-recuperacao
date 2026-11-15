@@ -19,7 +19,7 @@ Foi escolhido o documento markdown por manter a coerencia com o resto do desenvo
 | Sprint | Nome | Objetivo | Status |
 |---|---|---|---|
 | 0 | Preparação | Preparar repositório e ambiente e entender os dados | ✅ |
-| 1 | Auditoria | Descobrir e contar os problemas dos dados | ⬜ |
+| 1 | Auditoria | Descobrir e contar os problemas dos dados | 🔄 |
 | 2 | Limpeza | Completar as funções que corrigem os problemas dos dados | ⬜ |
 | 3 | Montar as tabelas | Aplicar as regras de negócio e montar a fato e as 4 dimensões | ⬜ |
 | 4 | Banco de dados | Criar as tabelas no PostgreSQL e carregar os dados automaticamente | ⬜ |
@@ -49,7 +49,7 @@ Foi escolhido o documento markdown por manter a coerencia com o resto do desenvo
 
 | # | Tarefa | Escopo | Status |
 |---|---|---|---|
-| 1.1 | Contar problemas de documentos e dinheiro | CNPJ/CPF com pontos, traços e zeros perdidos; dinheiro escrito com R$, ponto e vírgula trocados e negativos entre parênteses | ⬜ |
+| 1.1 | Contar problemas de documentos e dinheiro | CNPJ/CPF com pontos, traços e zeros perdidos; dinheiro escrito com R$, ponto e vírgula trocados e negativos entre parênteses. Script em [`src/auditoria.py`](../src/auditoria.py) e resultado no [README](../README.md#auditoria-dos-dados) | ✅ |
 | 1.2 | Contar problemas de datas | Datas escritas em formatos diferentes e homologações com data anterior à publicação do edital | ⬜ |
 | 1.3 | Contar problemas de texto | Vazios disfarçados ("N/A", "NULL", "-", "0", "SEM INFORMAÇÃO"), acentos quebrados (Ã§, Ã£) e o mesmo órgão ou fornecedor escrito de jeitos diferentes | ⬜ |
 | 1.4 | Registrar no README | Montar a lista dos problemas encontrados, com a quantidade de registros de cada um | ⬜ |
