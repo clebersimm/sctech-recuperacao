@@ -29,6 +29,7 @@ O QUE ESTA AUDITADO AQUI
 - Item 1.3: vazios disfarcados, acentos quebrados, caracteres invisiveis e nomes escritos de jeitos diferentes.
                                 -> funcoes auditar_vazios(), auditar_acentos_invisiveis(), exemplos_acento()
                                    e auditar_grafias()
+- Item 1.4: a lista resumida de todos os problemas.     -> funcao resumo() (e a primeira tabela da saida)
 """
 
 import re
@@ -451,8 +452,96 @@ def auditar_grafias(compras, resultados):
 
 
 # ---------------------------------------------------------------------------------------------
+# ITEM 1.4 - RESUMO: A LISTA DE TODOS OS PROBLEMAS E QUANTOS REGISTROS CADA UM AFETA
+# ---------------------------------------------------------------------------------------------
+def resumo(arquivos):
+    """Junta as contagens dos itens 1.1, 1.2 e 1.3 numa lista unica: uma linha por problema.
+    Nao conta nada novo: usa as mesmas funcoes de contagem acima e SOMA o resultado das colunas onde o problema
+    aparece. A ultima coluna diz em que Sprint o problema e tratado.
+
+    'Registros afetados' e a soma das colunas: se um registro tem o problema em 2 colunas, conta 2 vezes."""
+    compras, resultados = arquivos["compras"], arquivos["resultados"]
+    orgao = contar_documento(compras["cnpj_orgao"])
+    forn = contar_documento(resultados["ni_fornecedor"], resultados["tipo_pessoa"])
+    numeros = {f"{a}.{c}": contar_numero(arquivos[a][c]) for a, cols in COLUNAS_NUMERICAS.items() for c in cols}
+    datas = {f"{a}.{c}": contar_data(arquivos[a][c]) for a, cols in COLUNAS_DATA.items() for c in cols}
+
+    def soma_numeros(chave):
+        return sum(c[chave] for c in numeros.values())
+
+    # Texto: soma as colunas de texto dos 3 arquivos
+    vazios = acentos = invisiveis = 0
+    for df in arquivos.values():
+        for coluna in df.columns:
+            if coluna in COLUNAS_NAO_TEXTO or coluna in ("cnpj_orgao", "ni_fornecedor"):
+                continue                                  # documentos ja foram contados no item 1.1
+            texto = df[coluna]
+            vazios += int(texto.str.replace("\xa0", " ").str.strip().str.upper().isin(NULOS - {""}).sum())
+            acentos += int(texto.str.contains(ACENTO_QUEBRADO).sum())
+            invisiveis += int(texto.str.contains("|".join(INVISIVEIS.values())).sum())
+
+    # Datas fora do formato ISO (aaaa-mm-dd), so nas duas datas que vao para a fato
+    fora_iso = sum(datas[c]["Total"] - datas[c]["ISO com hora (2025-01-06T11:51:06)"] - datas[c]["ISO (2025-10-31)"]
+                   for c in ["compras.data_publicacao", "resultados.data_resultado"])
+
+    # Nomes: reaproveita a mesma logica do item 1.3
+    doc_orgao = compras["cnpj_orgao"].str.replace(r"\D", "", regex=True).str.zfill(14)
+    grafias_orgao = pd.DataFrame({"d": doc_orgao, "n": compras["razao_social_orgao"]}).groupby("d")["n"].nunique()
+    nomes_varios_cnpj = pd.DataFrame({"d": doc_orgao, "n": nome_padrao(compras["razao_social_orgao"])}) \
+        .groupby("n")["d"].nunique()
+    digitos = resultados["ni_fornecedor"].str.replace(r"\D", "", regex=True)
+    tipo = resultados["tipo_pessoa"]
+    doc_forn = digitos.where(tipo != "PJ", digitos.str.zfill(14)).where(tipo != "PF", digitos.str.zfill(11))
+    doc_forn = doc_forn.where(tipo != "PE", resultados["ni_fornecedor"].str.strip(" \xa0\t").str.upper())
+    grafias_forn = pd.DataFrame({"d": doc_forn, "n": resultados["nome_fornecedor"]}).groupby("d")["n"].nunique()
+
+    invertidas = auditar_datas_invertidas(compras, arquivos["itens"], resultados)
+    qtd_invertidas = int(re.search(r"antes da publicação \| ([\d.]+)", invertidas).group(1).replace(".", ""))
+
+    linhas = [
+        ["1", "CNPJ/CPF com máscara (pontos, barra, traço)", "`cnpj_orgao`, `ni_fornecedor`",
+         orgao["Com máscara (pontos, barra, traço)"] + forn["Com máscara (pontos, barra, traço)"], "Sprint 2"],
+        ["1", "CNPJ/CPF com espaços sobrando", "`cnpj_orgao`, `ni_fornecedor`",
+         orgao["Com espaços sobrando nas pontas"] + forn["Com espaços sobrando nas pontas"], "Sprint 2"],
+        ["1", "CNPJ/CPF com zeros perdidos no começo", "`cnpj_orgao`, `ni_fornecedor`",
+         orgao["CNPJ com zeros perdidos no começo (PJ)"] + forn["CNPJ com zeros perdidos no começo (PJ)"]
+         + forn["CPF com zeros perdidos no começo (PF)"], "Sprint 2"],
+        ["2", "Dinheiro e quantidade com `R$`", "8 colunas de valor e quantidade", soma_numeros("Com R$"), "Sprint 2"],
+        ["2", "Dinheiro e quantidade com espaços sobrando (inclui NBSP)", "8 colunas de valor e quantidade",
+         soma_numeros("Espaços sobrando"), "Sprint 2"],
+        ["2", "Número fora do padrão ponto decimal (vírgula decimal, BR com milhar, US com milhar, milhar repetido)",
+         "8 colunas de valor e quantidade",
+         sum(soma_numeros(k) for k in ["Só vírgula decimal (12,5)", "BR com milhar (1.234,56)",
+                                       "US com milhar (1,234.56)", "Milhar sem decimal (1.234.567)"]), "Sprint 2"],
+        ["2", "Número ambíguo (`1.500`, vale 1,5 pela regra)", "valores unitários e totais",
+         soma_numeros("Ambíguo (1.500)"), "Sprint 2"],
+        ["2", "Valor negativo (entre parênteses ou com sinal)", "8 colunas de valor e quantidade",
+         soma_numeros("Negativo"), "não ocorre"],
+        ["3", "Data fora do formato ISO (`aaaa-mm-dd`)", "`data_publicacao`, `data_resultado`", fora_iso, "Sprint 2"],
+        ["3", "Homologação antes da publicação do edital", "`data_resultado` × `data_publicacao`",
+         qtd_invertidas, "Sprint 3 (regra 7)"],
+        ["3", "Ano absurdo (2035 a 9999, Credenciamento)", "`data_encerramento_proposta`",
+         datas["compras.data_encerramento_proposta"]["Ano fora de 2000-2030"], "não vai para a fato"],
+        ["4", "Vazio disfarçado (N/A, NULL, -, 0, Não se aplica, Não Informado…)", "6 colunas de texto",
+         vazios, "Sprint 2"],
+        ["5", "Acento quebrado (`Ã§`, `Ã£`)", "5 colunas de texto", acentos, "Sprint 2"],
+        ["5", "Caractere invisível (NBSP, TAB, quebra de linha, largura zero)", "colunas de texto", invisiveis,
+         "Sprint 2"],
+        ["5", "Órgão com o nome escrito de jeitos diferentes (CNPJ)", "`razao_social_orgao`",
+         int((grafias_orgao > 1).sum()), "Sprint 2"],
+        ["5", "Fornecedor com o nome escrito de jeitos diferentes (CNPJ/CPF)", "`nome_fornecedor`",
+         int((grafias_forn > 1).sum()), "Sprint 2 e 3"],
+        ["5", "Mesmo nome de órgão com vários CNPJ (unidades)", "`razao_social_orgao`",
+         int((nomes_varios_cnpj > 1).sum()), "Sprint 5 (agrupar pelo nome)"],
+    ]
+    return tabela_markdown(["Desafio", "Problema", "Onde aparece", "Registros afetados", "Tratado em"], linhas)
+
+
+# ---------------------------------------------------------------------------------------------
 def main():
     arquivos = {nome: ler(nome) for nome in ["compras", "itens", "resultados"]}
+    print("## 1.4 Resumo dos problemas\n")
+    print(resumo(arquivos))
     print("## 1.1 Documentos (CNPJ/CPF)\n")
     print(auditar_documentos(arquivos["compras"], arquivos["resultados"]))
     print("## 1.1 Dinheiro e números\n")

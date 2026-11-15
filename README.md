@@ -11,6 +11,36 @@ python -m src.auditoria
 
 > Um mesmo registro pode ter mais de um problema (por exemplo, `R$ 1.234,56` tem `R$` **e** milhar no padrão brasileiro). Por isso as colunas de uma tabela não devem ser somadas.
 
+### Resumo dos problemas
+
+Lista de todos os problemas encontrados, com quantos registros cada um afeta. A coluna "Desafio" segue a numeração da seção 4.2 do enunciado: 1 documentos, 2 dinheiro, 3 datas, 4 vazios disfarçados, 5 texto. Os detalhes de cada problema estão nas seções abaixo.
+
+| Desafio | Problema | Onde aparece | Registros afetados | Tratado em |
+|---|---|---|---|---|
+| 1 | CNPJ/CPF com máscara (pontos, barra, traço) | `cnpj_orgao`, `ni_fornecedor` | 1.809 | Sprint 2 |
+| 1 | CNPJ/CPF com espaços sobrando | `cnpj_orgao`, `ni_fornecedor` | 1.121 | Sprint 2 |
+| 1 | CNPJ/CPF com zeros perdidos no começo | `cnpj_orgao`, `ni_fornecedor` | 430 | Sprint 2 |
+| 2 | Dinheiro e quantidade com `R$` | 8 colunas de valor e quantidade | 12.055 | Sprint 2 |
+| 2 | Dinheiro e quantidade com espaços sobrando (inclui NBSP) | 8 colunas de valor e quantidade | 5.976 | Sprint 2 |
+| 2 | Número fora do padrão ponto decimal (vírgula decimal, BR com milhar, US com milhar, milhar repetido) | 8 colunas de valor e quantidade | 16.706 | Sprint 2 |
+| 2 | Número ambíguo (`1.500`, vale 1,5 pela regra) | valores unitários e totais | 137 | Sprint 2 |
+| 2 | Valor negativo (entre parênteses ou com sinal) | 8 colunas de valor e quantidade | 0 | não ocorre |
+| 3 | Data fora do formato ISO (`aaaa-mm-dd`) | `data_publicacao`, `data_resultado` | 6.318 | Sprint 2 |
+| 3 | Homologação antes da publicação do edital | `data_resultado` × `data_publicacao` | 234 | Sprint 3 (regra 7) |
+| 3 | Ano absurdo (2035 a 9999, Credenciamento) | `data_encerramento_proposta` | 65 | não vai para a fato |
+| 4 | Vazio disfarçado (N/A, NULL, -, 0, Não se aplica, Não Informado…) | 6 colunas de texto | 15.117 | Sprint 2 |
+| 5 | Acento quebrado (`Ã§`, `Ã£`) | 5 colunas de texto | 202 | Sprint 2 |
+| 5 | Caractere invisível (NBSP, TAB, quebra de linha, largura zero) | colunas de texto | 1.164 | Sprint 2 |
+| 5 | Órgão com o nome escrito de jeitos diferentes (CNPJ) | `razao_social_orgao` | 67 | Sprint 2 |
+| 5 | Fornecedor com o nome escrito de jeitos diferentes (CNPJ/CPF) | `nome_fornecedor` | 490 | Sprint 2 e 3 |
+| 5 | Mesmo nome de órgão com vários CNPJ (unidades) | `razao_social_orgao` | 5 | Sprint 5 (agrupar pelo nome) |
+
+Como ler a tabela:
+
+- **Registros afetados** soma todas as colunas onde o problema aparece. Se um registro tem o mesmo problema em 2 colunas, ele conta 2 vezes. Nas três últimas linhas, a contagem é de **documentos** (CNPJ/CPF), e não de registros.
+- **Sprint 2** é onde o `src/limpeza.py` corrige o problema. **Sprint 3** é onde as regras de negócio decidem o que fazer com o registro.
+- **Não ocorre / não vai para a fato:** o problema foi procurado e não existe, ou fica numa coluna que não é usada nas tabelas finais.
+
 ### Documentos (CNPJ/CPF)
 
 | Problema | `compras.cnpj_orgao` | `resultados.ni_fornecedor` |
