@@ -279,3 +279,58 @@ Foram usadas as 4 palavras da referência do enunciado, que já vêm no kit. Ass
 | **Total** | **6.126** | **R$ 8.044.498.805,74** | **100%** |
 
 Os percentuais batem com a prova real (Obras 60,8% · Serviços 36,6% · Bens 2,6%). Bens são mais da metade dos itens, mas quase todo o dinheiro vai para obras e serviços.
+
+## Respostas das perguntas da Controladoria
+
+As consultas estão em [`sql/02_perguntas.sql`](sql/02_perguntas.sql) e rodam no banco `pncp_controladoria`, depois da carga (`python -m src.carregar`). Os percentuais são sempre **soma ÷ soma**, e nunca uma média de percentuais. A economia conta só os **itens comparáveis** (regra 6).
+
+### Pergunta 1 – Economia global do Poder Público
+
+| Indicador | Resultado |
+|---|---|
+| Itens comparáveis | 5.457 de 6.126 |
+| Valor estimado dos comparáveis | R$ 6.867.663.469,91 |
+| **Economia (estimado − homologado)** | **R$ 992.861.686,95** |
+| **Economia %** | **14,46%** |
+| Itens homologados acima do estimado (sobrepreço) | 27 |
+| Quanto o sobrepreço custou | R$ 44.440,34 |
+
+Onde se concentram os 27 itens com sobrepreço:
+
+| Agrupado por | Onde se concentra | Itens | Valor |
+|---|---|---|---|
+| Modalidade | Pregão - Eletrônico | 25 | R$ 38.551,51 |
+| | Concorrência - Eletrônica | 1 | R$ 5.126,83 |
+| | Dispensa | 1 | R$ 762,00 |
+| Perfil do gasto | Bens | 25 | R$ 39.299,94 |
+| | Serviços | 2 | R$ 5.140,40 |
+| Região | Sudeste | 24 | R$ 38.537,94 |
+| | Nordeste | 2 | R$ 5.888,83 |
+| | Sul | 1 | R$ 13,57 |
+
+**Conclusão:** o governo pagou 14,46% a menos do que estimou nos itens que dá para comparar, uma economia de quase R$ 1 bilhão. O sobrepreço é raro (27 itens) e pequeno (R$ 44 mil, menos de 0,005% da economia). Ele se concentra em **bens comprados por Pregão Eletrônico no Sudeste**. Obras, Centro-Oeste e Norte não tiveram nenhum item com sobrepreço.
+
+### Pergunta 2 – Concentração de fornecedores e ME/EPP
+
+| Indicador | Resultado |
+|---|---|
+| Itens ganhos por ME/EPP | 3.853 de 6.126 (62,90%) |
+| Volume ganho por ME/EPP | R$ 1.603.610.879,06 (19,93% do volume) |
+| Volume dos 10 maiores fornecedores | R$ 3.332.484.029,86 (**41,43%** do volume) |
+
+Os 10 maiores fornecedores em volume (fornecedor = CNPJ/CPF, então filiais contam separado):
+
+| # | Fornecedor | Porte | Itens | Volume | % do volume |
+|---|---|---|---|---|---|
+| 1 | NOW SEGUROS SA | Demais | 1 | R$ 1.060.000.000,00 | 13,18% |
+| 2 | CONSTRUTORA CIDADE LIMITADA | Demais | 1 | R$ 524.935.394,97 | 6,53% |
+| 3 | BANCO BRADESCO S.A. | Demais | 1 | R$ 379.194.320,07 | 4,71% |
+| 4 | CONSTRUTORA NORTE BRASIL LTDA. | Microempresa | 1 | R$ 335.401.470,80 | 4,17% |
+| 5 | LCM CONSTRUCAO E COMERCIO S.A | Demais | 1 | R$ 228.885.493,53 | 2,85% |
+| 6 | CONSTRUTORA OTIMA LTDA | Demais | 1 | R$ 192.344.816,46 | 2,39% |
+| 7 | CONPATE ENGENHARIA LTDA | Demais | 1 | R$ 166.644.303,41 | 2,07% |
+| 8 | INDIGO HIVE CONSULTORIA EM TECNOLOGIA DA INFORMACAO S.A. | Demais | 1 | R$ 160.000.000,00 | 1,99% |
+| 9 | CONSTRUTORA HIDROS LTDA | Demais | 1 | R$ 159.193.730,62 | 1,98% |
+| 10 | ARTELESTE CONSTRUCOES LIMITADA | Demais | 1 | R$ 125.884.500,00 | 1,56% |
+
+**Conclusão:** as micro e pequenas empresas ganham a maioria dos itens (62,90%), mas ficam com só 19,93% do dinheiro, porque vencem compras menores. Já os 10 maiores fornecedores, de um total de 2.652, ficam com 41,43% de todo o volume. Cada um deles ganhou **um único item**: a concentração vem de poucas compras muito grandes, e não de fornecedores que vencem muitas vezes. Desses 10 itens, 7 são de Obras e engenharia e 3 de Serviços, entre eles o maior de todos (NOW SEGUROS SA, R$ 1,06 bilhão).
