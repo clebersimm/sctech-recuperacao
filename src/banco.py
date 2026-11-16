@@ -48,11 +48,14 @@ def _separar_comandos(texto):
     return [c.strip() for c in sem_comentarios.split(";") if c.strip()]
 
 
-def executar_script(conexao, caminho):
+def executar_script(conexao, caminho, gravar=True):
+    """Executa os comandos de um arquivo .sql.
+    gravar=False: nao faz o commit aqui (quem chamou grava tudo no final ou desfaz com rollback)."""
     cursor = conexao.cursor()
     for comando in _separar_comandos(caminho.read_text(encoding="utf-8")):
         cursor.execute(comando)
-    conexao.commit()
+    if gravar:
+        conexao.commit()
     cursor.close()
 
 
@@ -72,17 +75,19 @@ def consultar(conexao, comando, params=None):
     return linhas
 
 
-def inserir_em_lote(conexao, sql_insert, linhas):
+def inserir_em_lote(conexao, sql_insert, linhas, gravar=True):
     """Insere varias linhas de uma vez.
 
     'sql_insert' vem no formato  INSERT INTO t (a,b) VALUES (%s, %s)
     e e convertido para o formato do execute_values (VALUES %s), que envia
     o lote inteiro em UM comando (muito mais rapido que executemany).
+    gravar=False: nao faz o commit aqui (quem chamou grava tudo no final ou desfaz com rollback).
     """
     if not linhas:
         return
     base = re.sub(r"VALUES\s*\(.*\)\s*$", "VALUES %s", sql_insert, flags=re.S)
     cursor = conexao.cursor()
     execute_values(cursor, base, linhas, page_size=2000)
-    conexao.commit()
+    if gravar:
+        conexao.commit()
     cursor.close()
