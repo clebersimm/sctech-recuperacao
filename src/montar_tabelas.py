@@ -189,11 +189,11 @@ def main():
     # ETAPA 8B - AS 5 METRICAS CALCULADAS NO ETL  (regra 13 do enunciado)
     # =========================================================================================
     # Escreva aqui o codigo das 5 metricas. Cada uma vira uma coluna da fato (regras na secao 4.2 do enunciado).
-    fato["sobrepreco"] = ____
-    fato["valor_sobrepreco"] = ____
-    fato["fornecedor_me_epp"] = ____
-    fato["contratacao_direta"] = ____
-    fato["ciclo_longo"] = ____
+    fato["sobrepreco"] = ((fato["comparavel"] == 1) & (hom > est)).astype(int)
+    fato["valor_sobrepreco"] = (hom - est).where(fato["sobrepreco"] == 1, 0.0).round(2)
+    fato["fornecedor_me_epp"] = fato["porte"].isin(["ME", "EPP"]).astype(int)
+    fato["contratacao_direta"] = fato["modalidade_id"].isin([8, 9]).astype(int)
+    fato["ciclo_longo"] = (fato["dias_ciclo"] > 90).astype(int)
 
     # =========================================================================================
     # ETAPA 9 - AS 4 DIMENSOES, COM CHAVE SUBSTITUTA (sk_)  (secao 4.3 do enunciado)

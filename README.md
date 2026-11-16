@@ -246,3 +246,36 @@ Como ler a tabela:
 - **Primeiro motivo:** cada item é contado uma vez só, por isso esta coluna soma 99.
 - **Qualquer motivo:** um mesmo item pode cair em vários casos, por isso esta coluna não deve ser somada. Exemplo: um item com estimado de R$ 0,50 e homologado de R$ 900 cai nos casos 5 e 6.
 - **Valor acima de R$ 1 trilhão:** um número desse tamanho não cabe na coluna de dinheiro do banco. O banco seria a segunda barreira, mas o item já é rejeitado aqui.
+
+## Perfil do gasto (Bens, Serviços ou Obras)
+
+Cada item da fato foi classificado em **Bens**, **Serviços** ou **Obras e engenharia**, seguindo a regra 8 do enunciado. A classificação é feita na etapa 8 do [`src/montar_tabelas.py`](src/montar_tabelas.py), assim:
+
+1. Primeiro, procura-se uma **palavra de obra** na descrição do item junto com o objeto da compra. Se ela aparecer, o item é **Obras e engenharia**, mesmo que seja Material ou Serviço.
+2. Nos demais itens, usa-se a coluna `material_ou_servico`: **Material** vira **Bens** e **Serviço** vira **Serviços**. A coluna `categoria_item` não foi usada porque vem toda como "Não se aplica".
+
+### Palavras de obra escolhidas
+
+Foram usadas as 4 palavras da referência do enunciado, que já vêm no kit. Assim o resultado bate com a prova real.
+
+| Palavra procurada | Itens em que aparece |
+|---|---|
+| OBRA | 344 |
+| OBRAS | 376 |
+| CONSTRUÇÃO (ou CONSTRUCAO, sem acento) | 352 |
+| REFORMA | 222 |
+| ENGENHARIA | 393 |
+
+- A busca é feita pela **palavra inteira**, e não por um pedaço dela. Por isso "cobrança" e "dobradiça" **não** viram obra.
+- Um item pode ter mais de uma dessas palavras, por isso a tabela acima não deve ser somada. No total, **967 itens** viraram Obras e engenharia: 803 eram Serviço e 164 eram Material.
+
+### Resultado
+
+| Perfil | Itens | Volume homologado | % do volume |
+|---|---|---|---|
+| Bens | 3.310 | R$ 211.185.187,86 | 2,6% |
+| Serviços | 1.849 | R$ 2.940.950.885,18 | 36,6% |
+| Obras e engenharia | 967 | R$ 4.892.362.732,70 | 60,8% |
+| **Total** | **6.126** | **R$ 8.044.498.805,74** | **100%** |
+
+Os percentuais batem com a prova real (Obras 60,8% · Serviços 36,6% · Bens 2,6%). Bens são mais da metade dos itens, mas quase todo o dinheiro vai para obras e serviços.
