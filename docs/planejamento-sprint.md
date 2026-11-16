@@ -23,7 +23,7 @@ Foi escolhido o documento markdown por manter a coerencia com o resto do desenvo
 | 2 | Limpeza | Completar as funções que corrigem os problemas dos dados | ✅ |
 | 3 | Montar as tabelas | Aplicar as regras de negócio e montar a fato e as 4 dimensões | ✅ |
 | 4 | Banco de dados | Criar as tabelas no PostgreSQL e carregar os dados automaticamente | ✅ |
-| 5 | Perguntas em SQL | Responder às 6 perguntas da Controladoria com consultas no banco | 🔄 |
+| 5 | Perguntas em SQL | Responder às 6 perguntas da Controladoria com consultas no banco | ✅ |
 | 6 | Power BI | Montar o painel visual que conta a história das 6 perguntas | ⬜ |
 | 7 | Documentação e entrega | Documentar o projeto no README e entregar o link do repositório | ⬜ |
 
@@ -110,7 +110,7 @@ Foi escolhido o documento markdown por manter a coerencia com o resto do desenvo
 | 5.1 | Perguntas 1 e 2 – Economia e fornecedores | Quanto o governo economizou (R$ e %) e quantos itens saíram acima do estimado; quanto vai para micro e pequenas empresas e quanto fica com os 10 maiores fornecedores | ✅ |
 | 5.2 | Perguntas 3 e 4 – Modalidades e tempo | Quanto é contratado sem licitação e como os grupos de modalidade se comparam; quais órgãos e modalidades mais passam de 90 dias e qual é o tempo médio | ✅ |
 | 5.3 | Perguntas 5 e 6 – Regiões e tipo de gasto | Quais estados e regiões gastam mais, têm mais desconto e mais contratação direta; como o dinheiro se divide entre bens, serviços e obras | ✅ |
-| 5.4 | Rodar e conferir | Executar as consultas no pgAdmin e comparar com a prova real (ex.: economia de 14,46%) | ⬜ |
+| 5.4 | Rodar e conferir | Executar as consultas no pgAdmin e comparar com a prova real (ex.: economia de 14,46%) | ✅ |
 
 ---
 

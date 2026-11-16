@@ -280,6 +280,60 @@ Foram usadas as 4 palavras da referência do enunciado, que já vêm no kit. Ass
 
 Os percentuais batem com a prova real (Obras 60,8% · Serviços 36,6% · Bens 2,6%). Bens são mais da metade dos itens, mas quase todo o dinheiro vai para obras e serviços.
 
+## Conferência com a prova real
+
+Todos os números do anexo 8 do enunciado (prova real) foram comparados com o resultado do projeto, e **todos bateram**.
+
+### Números que saem das consultas de `sql/02_perguntas.sql`
+
+Para conferir no pgAdmin, rode a consulta indicada na coluna "Consulta" e compare com o valor do anexo.
+
+| Conferência do anexo 8 | Anexo 8 | Resultado | Consulta | Confere |
+|---|---|---|---|---|
+| Itens na fato | 6.126 | 6.126 | 1.1 | ✔ |
+| Itens na base comparável | 5.457 | 5.457 | 1.1 | ✔ |
+| Estimado da base comparável | R$ 6.867.663.469,91 | R$ 6.867.663.469,91 | 1.1 | ✔ |
+| Economia nominal | R$ 992.861.686,95 | R$ 992.861.686,95 | 1.1 | ✔ |
+| Economia % | 14,46% | 14,46% | 1.1 | ✔ |
+| Itens com sobrepreço | 27 | 27 | 1.1 | ✔ |
+| Volume homologado total | R$ 8.044.498.805,74 | R$ 8.044.498.805,74 | 2.1 | ✔ |
+| Itens com fornecedor ME/EPP | 3.853 | 3.853 | 2.1 | ✔ |
+| Volume com ME/EPP | R$ 1.603.610.879,06 (19,93%) | R$ 1.603.610.879,06 (19,93%) | 2.1 | ✔ |
+| Itens de contratação direta | 1.890 | 1.890 | 3.1 | ✔ |
+| Volume de contratação direta | R$ 253.252.588,63 (3,15%) | R$ 253.252.588,63 (3,15%) | 3.1 | ✔ |
+| Itens por grupo de modalidade | Pregão 3.051 · Contratação direta 1.890 · Credenciamento 601 · Concorrência 584 | iguais | 3.3 | ✔ |
+| Itens com ciclo | 5.896 | 5.896 | 4.3 | ✔ |
+| Ciclo médio / máximo | 48,1 / 611 dias | 48,1 / 611 dias | 4.3 | ✔ |
+| Itens com ciclo longo | 830 (14,1%) | 830 (14,08%) | 4.3 | ✔ |
+| Perfil do gasto (% do volume) | Obras 60,8% · Serviços 36,6% · Bens 2,6% | 60,82% · 36,56% · 2,63% | 6.1 | ✔ |
+| Perfil do gasto (itens) | 967 · 1.849 · 3.310 | iguais | 6.1 | ✔ |
+
+O anexo mostra alguns percentuais com 1 casa decimal (14,1 e 60,8), e as consultas mostram 2 casas (14,08 e 60,82). É o mesmo valor arredondado.
+
+### Números conferidos direto no banco
+
+São números do anexo 8 que não fazem parte das 6 perguntas:
+
+| Conferência do anexo 8 | Anexo 8 | No banco | Confere |
+|---|---|---|---|
+| Contratações distintas na fato | 1.962 | 1.962 | ✔ |
+| Fornecedores distintos | 2.652 | 2.652 | ✔ |
+| Unidades compradoras (CNPJ de órgão distintos) | 363 | 363 | ✔ |
+| Soma do estimado de todos os itens | R$ 32.629.639.732,13 | R$ 32.629.639.732,13 | ✔ |
+| Itens sem ciclo | 230 | 230 | ✔ |
+| Fornecedores por porte | Microempresa 1.489 · Demais 908 · Não informado 250 · Empresa de Pequeno Porte 5 | iguais | ✔ |
+| Contratação direta por modalidade | Dispensa 1.387 · Inexigibilidade 503 | iguais | ✔ |
+
+### Números conferidos na montagem das tabelas
+
+Estes números não ficam guardados no banco. São conferidos pelo `python -m src.montar_tabelas`, que mostra cada um na tela:
+
+| Conferência do anexo 8 | Anexo 8 | Resultado | Confere |
+|---|---|---|---|
+| Linhas de compras.csv / itens.csv / resultados.csv | 2.042 / 7.077 / 15.896 | 2.042 / 7.077 / 15.896 | ✔ |
+| Itens sem resultado homologado | 852 | 852 (6.225 itens com resultado) | ✔ |
+| Itens rejeitados | 99 | 99 | ✔ |
+
 ## Respostas das perguntas da Controladoria
 
 As consultas estão em [`sql/02_perguntas.sql`](sql/02_perguntas.sql) e rodam no banco `pncp_controladoria`, depois da carga (`python -m src.carregar`). Os percentuais são sempre **soma ÷ soma**, e nunca uma média de percentuais. A economia conta só os **itens comparáveis** (regra 6).
