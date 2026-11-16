@@ -121,9 +121,9 @@ def main():
     qtd_homologada = fato["quantidade_homologada"]
     # COMPLETE: .where(condicao, outro) mantem o valor onde a condicao e verdadeira e usa "outro" onde e falsa.
     # Queremos a quantidade homologada quando ela for maior que 0; senao a quantidade do item. Condicao: qtd_homologada > 0
-    fato["quantidade"] = qtd_homologada.where(____, fato["quantidade"])
+    fato["quantidade"] = qtd_homologada.where(qtd_homologada > 0, fato["quantidade"])
     # COMPLETE: valor total estimado = valor unitario estimado x quantidade (round(2) arredonda em centavos)
-    fato["valor_total_estimado"] = (____).round(2)
+    fato["valor_total_estimado"] = (fato["valor_unitario_estimado"] * fato["quantidade"]).round(2)
     fato["valor_total_homologado"] = (fato["valor_unitario_homologado"] * fato["quantidade"]).round(2)
 
     # =========================================================================================
@@ -134,18 +134,18 @@ def main():
     rejeitado = (
         ~(fato["quantidade"] > 0)                          # quantidade vazia ou <= 0
         # COMPLETE: valor unitario ESTIMADO ausente ou <= 0
-        | ____
+        | ~(fato["valor_unitario_estimado"] > 0)
         | ~(fato["valor_unitario_homologado"] > 0)         # valor unitario homologado ausente ou <= 0
         | fato["sigiloso"]                                 # orcamento sigiloso
         # COMPLETE: valor total estimado menor que R$ 1  (use est)
-        | ____
+        | (est < 1)
         # COMPLETE: valor total homologado mais de 1000 vezes o estimado (use hom e est)
-        | ____
+        | (hom > 1000 * est)
         | (est > 1e12) | (hom > 1e12)                      # valores acima de R$ 1 trilhao (estouram o DECIMAL do banco)
     )
     print(f"Itens rejeitados (nao entram na fato): {rejeitado.sum()}   (prova real: 99)")
     # COMPLETE: fique so com os itens NAO rejeitados (use ~rejeitado)
-    fato = fato[____].copy()
+    fato = fato[~rejeitado].copy()
 
     # =========================================================================================
     # ETAPA 6 - COMPARAVEL E ECONOMIA  (regra 6)

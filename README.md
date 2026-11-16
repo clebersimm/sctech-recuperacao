@@ -221,3 +221,28 @@ O que esses números mostram:
 - **Fornecedor:** sobram 16 documentos com mais de um nome, mas são **nomes diferentes de verdade**, e não erros de digitação. Exemplos: `ALELO S.A.` e `ALELO INSTITUICAO DE PAGAMENTO SA`, ou `ATIVE COMUNICACAO` e `ATIVE COMUNICAÇÃO` (com e sem acento). A dimensão guarda um nome só por documento, então isso não duplica fornecedores.
 - **Unidade:** os 62 CNPJs que continuam com vários nomes são **unidades diferentes** do mesmo CNPJ (ex.: `BANCO CENTRAL DO BRASIL - BRASÍLIA` e `BANCO CENTRAL DO BRASIL - SALVADOR`). Não é erro de digitação, e `nome_unidade` não vai para a dimensão.
 - **O contrário também acontece:** 5 órgãos têm **o mesmo nome com vários CNPJ** (unidades). O maior é o `DNIT - DEPARTAMENTO NACIONAL DE INFRAEST DE TRANSPORTES`, com 12 CNPJ, seguido do `COMANDO DA AERONAUTICA` (4) e do `COMANDO DA MARINHA` (3). Por isso, no ranking da pergunta 4, o enunciado manda agrupar pelo **nome padronizado** e não pelo CNPJ.
+
+## Itens rejeitados
+
+Depois de escolher o vencedor de cada item, sobram **6.225 itens com resultado**. Os 852 itens sem resultado já ficaram de fora antes e não contam como rejeitados. Antes de rejeitar, o valor total de cada item é calculado: valor unitário × quantidade homologada. Se a quantidade homologada vier vazia ou zero, usa-se a quantidade do item, o que aconteceu em 8 itens.
+
+Depois, os itens com dados impossíveis são **rejeitados**: não entram na fato nem no banco. Isso é feito pela etapa 5 do [`src/montar_tabelas.py`](src/montar_tabelas.py), seguindo a regra 4 do enunciado. Foram **99 itens rejeitados** (prova real: 99), e sobraram **6.126 itens na fato**.
+
+Quando um item cai em mais de um caso, ele é contado só no **primeiro motivo**, na ordem do enunciado:
+
+| Ordem | Motivo | Itens (primeiro motivo) | Itens (qualquer motivo) |
+|---|---|---|---|
+| 1 | Quantidade vazia ou ≤ 0 | 1 | 1 |
+| 2 | Valor unitário estimado vazio ou ≤ 0 | 23 | 23 |
+| 3 | Valor unitário homologado vazio ou ≤ 0 | 6 | 6 |
+| 4 | Orçamento sigiloso | 0 | 0 |
+| 5 | Valor total estimado menor que R$ 1 | 59 | 85 |
+| 6 | Valor total homologado mais de 1.000× o estimado | 7 | 60 |
+| 7 | Valor total acima de R$ 1 trilhão | 3 | 3 |
+| | **Total** | **99** | |
+
+Como ler a tabela:
+
+- **Primeiro motivo:** cada item é contado uma vez só, por isso esta coluna soma 99.
+- **Qualquer motivo:** um mesmo item pode cair em vários casos, por isso esta coluna não deve ser somada. Exemplo: um item com estimado de R$ 0,50 e homologado de R$ 900 cai nos casos 5 e 6.
+- **Valor acima de R$ 1 trilhão:** um número desse tamanho não cabe na coluna de dinheiro do banco. O banco seria a segunda barreira, mas o item já é rejeitado aqui.
