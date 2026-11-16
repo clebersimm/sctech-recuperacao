@@ -21,7 +21,7 @@ Foi escolhido o documento markdown por manter a coerencia com o resto do desenvo
 | 0 | Preparação | Preparar repositório e ambiente e entender os dados | ✅ |
 | 1 | Auditoria | Descobrir e contar os problemas dos dados | ✅ |
 | 2 | Limpeza | Completar as funções que corrigem os problemas dos dados | ✅ |
-| 3 | Montar as tabelas | Aplicar as regras de negócio e montar a fato e as 4 dimensões | ⬜ |
+| 3 | Montar as tabelas | Aplicar as regras de negócio e montar a fato e as 4 dimensões | 🔄 |
 | 4 | Banco de dados | Criar as tabelas no PostgreSQL e carregar os dados automaticamente | ⬜ |
 | 5 | Perguntas em SQL | Responder às 6 perguntas da Controladoria com consultas no banco | ⬜ |
 | 6 | Power BI | Montar o painel visual que conta a história das 6 perguntas | ⬜ |
@@ -77,7 +77,7 @@ Foi escolhido o documento markdown por manter a coerencia com o resto do desenvo
 
 | # | Tarefa | Escopo | Status |
 |---|---|---|---|
-| 3.1 | Limpar os arquivos e criar as colunas novas | Usar as funções da Sprint 2 nos 3 arquivos e criar a região, o grupo da modalidade, o porte e o poder por extenso (etapas 1 e 1B) | ⬜ |
+| 3.1 | Limpar os arquivos e criar as colunas novas | Usar as funções da Sprint 2 nos 3 arquivos e criar a região, o grupo da modalidade, o porte e o poder por extenso (etapas 1 e 1B) | ✅ |
 | 3.2 | Escolher o vencedor e juntar os arquivos | Descartar os cancelados, ficar com o 1º colocado (no empate, o de menor sequencial) e ligar compras, itens e vencedores; só entram itens com resultado (etapas 2 e 3) | ⬜ |
 | 3.3 | Calcular os valores e rejeitar itens impossíveis | Valor unitário × quantidade homologada; depois tirar itens com valores inválidos, sigilosos ou absurdos e contar quantos foram (etapas 4 e 5) | ⬜ |
 | 3.4 | Calcular economia, tempo e tipo de gasto | Marcar o que é comparável e a economia, contar os dias entre a publicação e a homologação e classificar em Bens, Serviços ou Obras (etapas 6, 7 e 8) | ⬜ |
