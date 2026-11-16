@@ -20,7 +20,7 @@ Foi escolhido o documento markdown por manter a coerencia com o resto do desenvo
 |---|---|---|---|
 | 0 | Preparação | Preparar repositório e ambiente e entender os dados | ✅ |
 | 1 | Auditoria | Descobrir e contar os problemas dos dados | ✅ |
-| 2 | Limpeza | Completar as funções que corrigem os problemas dos dados | 🔄 |
+| 2 | Limpeza | Completar as funções que corrigem os problemas dos dados | ✅ |
 | 3 | Montar as tabelas | Aplicar as regras de negócio e montar a fato e as 4 dimensões | ⬜ |
 | 4 | Banco de dados | Criar as tabelas no PostgreSQL e carregar os dados automaticamente | ⬜ |
 | 5 | Perguntas em SQL | Responder às 6 perguntas da Controladoria com consultas no banco | ⬜ |
@@ -66,7 +66,7 @@ Foi escolhido o documento markdown por manter a coerencia com o resto do desenvo
 | 2.1 | Limpar textos e vazios | Tirar caracteres invisíveis e espaços sobrando, consertar acentos, tratar "N/A", "-" e "NULL" como vazio e padronizar os nomes (`remover_invisiveis`, `consertar_acento`, `tirar_espacos`, `eh_nulo`, `limpar_texto`, `padronizar_nome`) | ✅ |
 | 2.2 | Limpar CNPJ/CPF | Tirar pontos e traços e devolver os zeros perdidos no começo (`limpar_documento`) | ✅ |
 | 2.3 | Converter dinheiro, números e datas | Transformar texto em número (ponto ou vírgula sozinho é sempre a parte decimal) e deixar as datas no mesmo padrão (`converter_numero`, `converter_data`) | ✅ |
-| 2.4 | Rodar o autoteste | Executar `python -m src.limpeza` e conferir ✔ em todos os exemplos | ⬜ |
+| 2.4 | Rodar o autoteste | Executar `python -m src.limpeza` e conferir ✔ em todos os exemplos | ✅ |
 
 ---
 
