@@ -121,9 +121,9 @@ Foi escolhido o documento markdown por manter a coerencia com o resto do desenvo
 
 | # | Tarefa | Escopo | Status |
 |---|---|---|---|
-| 6.1 | Preparar o modelo | Trazer a fato e as 4 dimensões do PostgreSQL, ligar as dimensões à fato e desligar a hierarquia automática de datas (proibida no enunciado) | ⬜ |
-| 6.2 | Criar o Calendário | Tabela de datas que se ajusta sozinha aos dados, com o mês em ordem certa, ligada às duas datas da fato | ⬜ |
-| 6.3 | Criar as medidas | As 10 medidas obrigatórias em uma tabela só para elas, com pastas por pergunta, mais as medidas de apoio das 5 métricas na pasta "ETL" | ⬜ |
+| 6.1 | Preparar o modelo | Trazer a fato e as 4 dimensões do PostgreSQL, ligar as dimensões à fato e desligar a hierarquia automática de datas (proibida no enunciado) | ✅ |
+| 6.2 | Criar o Calendário | Tabela de datas que se ajusta sozinha aos dados, com o mês em ordem certa, ligada às duas datas da fato | ✅ |
+| 6.3 | Criar as medidas | As 10 medidas obrigatórias em uma tabela só para elas, com pastas por pergunta, mais as medidas de apoio das 5 métricas na pasta "ETL" | ✅ |
 | 6.4 | Montar as páginas e a navegação | Uma página por pergunta (pergunta, números e frase de conclusão), menu que abre e fecha com botões e a dica ao passar o mouse | ⬜ |
 | 6.5 | Cuidar do visual e salvar | Contraste, repetição, alinhamento e proximidade, com cores só para destacar o que importa; guardar o `.pbix` na pasta `powerbi/` | ⬜ |
 
