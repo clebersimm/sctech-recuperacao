@@ -95,7 +95,7 @@ Foi escolhido o documento markdown por manter a coerencia com o resto do desenvo
 |---|---|---|---|
 | 4.1 | Escrever o script de criação das tabelas | Criar `sql/01_criar_banco.sql` com a fato e as 4 dimensões, usando os nomes do enunciado e os tipos certos (dinheiro como decimal, datas como data, 0/1 como número pequeno) | ✅ |
 | 4.2 | Definir as chaves e as ligações | Cada tabela tem seu número próprio (`sk_…`), o código original (CNPJ, UF, modalidade) não se repete, toda linha da fato aponta para uma dimensão que existe e, se faltar dado, usa-se a linha "Não informado" (−1) | ✅ |
-| 4.3 | Colocar as travas do banco | Recusar quantidade ≤ 0 e valores negativos; as colunas das métricas só aceitam 0 ou 1 | ⬜ |
+| 4.3 | Colocar as travas do banco | Recusar quantidade ≤ 0 e valores negativos; as colunas das métricas só aceitam 0 ou 1 | ✅ |
 | 4.4 | Completar a carga e conferir | Completar o `src/carregar.py` para enviar os dados em lote, desfazendo tudo se der erro; rodar `python -m src.carregar` e comparar as contagens com a prova real | ⬜ |
 
 ---

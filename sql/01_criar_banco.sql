@@ -18,6 +18,9 @@
 --   fk_...  ligacao: cada linha da fato aponta para uma linha que existe na dimensao
 -- A linha "Nao informado" (sk = -1) nao foi criada: nenhuma ligacao da fato fica sem destino.
 --
+-- Travas (chk_...): o banco e a segunda barreira, recusa dado impossivel mesmo que passe pelo Python:
+--   quantidade > 0, valores >= 0 (menos economia_valor), dias_ciclo >= 0 e colunas 0/1 so com 0 ou 1.
+--
 -- As dimensoes vem primeiro, porque a fato aponta para elas.
 -- =============================================================================================
 
@@ -130,5 +133,26 @@ CREATE TABLE fato_item_contratado (
     CONSTRAINT fk_fato_orgao       FOREIGN KEY (sk_orgao)       REFERENCES dim_orgao (sk_orgao),
     CONSTRAINT fk_fato_fornecedor  FOREIGN KEY (sk_fornecedor)  REFERENCES dim_fornecedor (sk_fornecedor),
     CONSTRAINT fk_fato_modalidade  FOREIGN KEY (sk_modalidade)  REFERENCES dim_modalidade (sk_modalidade),
-    CONSTRAINT fk_fato_localidade  FOREIGN KEY (sk_localidade)  REFERENCES dim_localidade (sk_localidade)
+    CONSTRAINT fk_fato_localidade  FOREIGN KEY (sk_localidade)  REFERENCES dim_localidade (sk_localidade),
+
+    -- travas: quantidade positiva
+    CONSTRAINT chk_fato_quantidade                 CHECK (quantidade > 0),
+
+    -- travas: valores nao negativos (>= 0, e nao > 0: um total pode arredondar para R$ 0,00,
+    -- ex.: unitario R$ 0,0001 x quantidade 1). economia_valor NAO tem trava: e negativa quando ha sobrepreco
+    CONSTRAINT chk_fato_valor_unitario_estimado    CHECK (valor_unitario_estimado >= 0),
+    CONSTRAINT chk_fato_valor_total_estimado       CHECK (valor_total_estimado >= 0),
+    CONSTRAINT chk_fato_valor_unitario_homologado  CHECK (valor_unitario_homologado >= 0),
+    CONSTRAINT chk_fato_valor_total_homologado     CHECK (valor_total_homologado >= 0),
+    CONSTRAINT chk_fato_valor_sobrepreco           CHECK (valor_sobrepreco >= 0),
+
+    -- trava: ciclo nunca negativo (a regra 7 ja anula homologacao anterior a publicacao), vazio e aceito
+    CONSTRAINT chk_fato_dias_ciclo                 CHECK (dias_ciclo >= 0),
+
+    -- travas: colunas de 1 ou 0
+    CONSTRAINT chk_fato_comparavel                 CHECK (comparavel IN (0, 1)),
+    CONSTRAINT chk_fato_sobrepreco                 CHECK (sobrepreco IN (0, 1)),
+    CONSTRAINT chk_fato_fornecedor_me_epp          CHECK (fornecedor_me_epp IN (0, 1)),
+    CONSTRAINT chk_fato_contratacao_direta         CHECK (contratacao_direta IN (0, 1)),
+    CONSTRAINT chk_fato_ciclo_longo                CHECK (ciclo_longo IN (0, 1))
 );
