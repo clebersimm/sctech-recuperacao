@@ -24,8 +24,8 @@ Foi escolhido o documento markdown por manter a coerencia com o resto do desenvo
 | 3 | Montar as tabelas | Aplicar as regras de negócio e montar a fato e as 4 dimensões | ✅ |
 | 4 | Banco de dados | Criar as tabelas no PostgreSQL e carregar os dados automaticamente | ✅ |
 | 5 | Perguntas em SQL | Responder às 6 perguntas da Controladoria com consultas no banco | ✅ |
-| 6 | Power BI | Montar o painel visual que conta a história das 6 perguntas | ⬜ |
-| 7 | Documentação e entrega | Documentar o projeto no README e entregar o link do repositório | ⬜ |
+| 6 | Power BI | Montar o painel visual que conta a história das 6 perguntas | ✅ |
+| 7 | Documentação e entrega | Documentar o projeto no README e entregar o link do repositório | ✅ |
 
 ---
 
@@ -124,8 +124,8 @@ Foi escolhido o documento markdown por manter a coerencia com o resto do desenvo
 | 6.1 | Preparar o modelo | Trazer a fato e as 4 dimensões do PostgreSQL, ligar as dimensões à fato e desligar a hierarquia automática de datas (proibida no enunciado) | ✅ |
 | 6.2 | Criar o Calendário | Tabela de datas que se ajusta sozinha aos dados, com o mês em ordem certa, ligada às duas datas da fato | ✅ |
 | 6.3 | Criar as medidas | As 10 medidas obrigatórias em uma tabela só para elas, com pastas por pergunta, mais as medidas de apoio das 5 métricas na pasta "ETL" | ✅ |
-| 6.4 | Montar as páginas e a navegação | Uma página por pergunta (pergunta, números e frase de conclusão), menu que abre e fecha com botões e a dica ao passar o mouse | ⬜ |
-| 6.5 | Cuidar do visual e salvar | Contraste, repetição, alinhamento e proximidade, com cores só para destacar o que importa; guardar o `.pbix` na pasta `powerbi/` | ⬜ |
+| 6.4 | Montar as páginas e a navegação | Uma página por pergunta (pergunta, números e frase de conclusão), menu que abre e fecha com botões e a dica ao passar o mouse | ✅ |
+| 6.5 | Cuidar do visual e salvar | Contraste, repetição, alinhamento e proximidade, com cores só para destacar o que importa; guardar o `.pbix` na pasta `powerbi/` | ✅ |
 
 ---
 
@@ -136,7 +136,7 @@ Foi escolhido o documento markdown por manter a coerencia com o resto do desenvo
 
 | # | Tarefa | Escopo | Status |
 |---|---|---|---|
-| 7.1 | Apresentar o projeto | Explicar o problema da Controladoria, dar um nome ao projeto, listar as ferramentas usadas (Python, pandas, PostgreSQL…) e apontar melhorias futuras | ⬜ |
-| 7.2 | Explicar o tratamento dos dados | Contar as decisões técnicas e por quê (incluindo discordâncias das regras), a lista dos problemas tratados e a regra de cada uma das 5 métricas com os números obtidos | ⬜ |
-| 7.3 | Explicar o banco e a execução | Diagrama da fato ligada às 4 dimensões e o passo a passo para rodar tudo do zero: instalar, preencher o `.env`, limpar, montar e carregar | ⬜ |
-| 7.4 | Figura das Sprints | Salvar uma imagem deste planejamento em `docs/img/sprints.png` e colocá-la no README | ⬜ |
+| 7.1 | Apresentar o projeto | Explicar o problema da Controladoria, dar um nome ao projeto, listar as ferramentas usadas (Python, pandas, PostgreSQL…) e apontar melhorias futuras | ✅ |
+| 7.2 | Explicar o tratamento dos dados | Contar as decisões técnicas e por quê (incluindo discordâncias das regras), a lista dos problemas tratados e a regra de cada uma das 5 métricas com os números obtidos | ✅ |
+| 7.3 | Explicar o banco e a execução | Diagrama da fato ligada às 4 dimensões e o passo a passo para rodar tudo do zero: instalar, preencher o `.env`, limpar, montar e carregar | ✅ |
+| 7.4 | Figura das Sprints | Salvar uma imagem deste planejamento em `docs/img/sprints.png` e colocá-la no README | ✅ |

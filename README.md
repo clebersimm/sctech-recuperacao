@@ -1,5 +1,201 @@
 # Esteira analítica de compras públicas (PNCP 2025) para a Controladoria
 
+## Sobre o projeto
+
+A Controladoria percebeu problemas sérios nas compras públicas federais: sinais de **sobrepreço** em itens contratados, **muitos contratos nas mãos de poucos fornecedores**, **demora** entre a publicação do edital e o resultado e **pouca disputa** em algumas formas de contratação.
+
+O problema é que os dados vêm de sistemas antigos que não conferem o que é digitado. Por isso chegam cheios de erros: CNPJ sem os zeros do começo, dinheiro escrito como texto ("R$ 1.234,56"), datas em vários formatos, resultado com data anterior ao edital, acentos quebrados e campos vazios disfarçados de "N/A" ou "-". Com dados assim, ninguém confia nos relatórios.
+
+Este projeto monta uma **esteira de dados do começo ao fim**. Ela pega os arquivos brutos do Portal Nacional de Contratações Públicas (PNCP) de 2025, corrige os erros, organiza tudo em um banco de dados e entrega um painel que responde às 6 perguntas da Controladoria.
+
+**O caminho dos dados:**
+
+arquivos brutos (CSV) → limpeza e regras (Python) → banco de dados (PostgreSQL) → perguntas (SQL) e painel (Power BI)
+
+## Ferramentas usadas
+
+| Ferramenta | Para que foi usada |
+|---|---|
+| Python 3.10+ | Linguagem dos scripts de auditoria, limpeza, montagem e carga |
+| pandas | Ler os arquivos, corrigir os dados e montar as tabelas |
+| PostgreSQL | Guardar as tabelas com regras que impedem dados errados |
+| psycopg2 | Ligar o Python ao PostgreSQL e enviar os dados |
+| SQL | Responder às 6 perguntas da Controladoria (`sql/02_perguntas.sql`) |
+| Power BI | Painel visual com as respostas (`powerbi/pncp_controladoria.pbix`) |
+| Git e GitHub | Guardar o histórico do trabalho |
+
+## Sumário
+
+- [Sobre o projeto](#sobre-o-projeto)
+- [Ferramentas usadas](#ferramentas-usadas)
+- [Tratamento dos dados](#tratamento-dos-dados)
+- [Banco de dados (modelo estrela)](#banco-de-dados-modelo-estrela)
+- [Como executar do zero](#como-executar-do-zero)
+- [Planejamento em Sprints](#planejamento-em-sprints)
+- [Auditoria dos dados](#auditoria-dos-dados)
+- [Itens rejeitados](#itens-rejeitados)
+- [Perfil do gasto](#perfil-do-gasto-bens-serviços-ou-obras)
+- [Conferência com a prova real](#conferência-com-a-prova-real)
+- [Respostas das perguntas da Controladoria](#respostas-das-perguntas-da-controladoria)
+- [Melhorias futuras](#melhorias-futuras)
+
+## Tratamento dos dados
+
+### Dicionário das inconsistências
+
+Cada problema encontrado na [auditoria](#auditoria-dos-dados) e como ele foi corrigido. As quantidades de cada um estão no [Resumo dos problemas](#resumo-dos-problemas).
+
+| Problema | Exemplo | Como foi corrigido | Onde |
+|---|---|---|---|
+| CNPJ/CPF com pontos, barra e traço | `12.345.678/0001-90` | Tira tudo que não é número | `limpar_documento` |
+| CNPJ/CPF sem os zeros do começo | `1234567000190` | Completa com zeros até 14 dígitos (CNPJ) ou 11 (CPF) | `limpar_documento` |
+| Dinheiro escrito como texto | `R$ 1.234,56` | Tira o `R$` e os espaços e transforma em número | `converter_numero` |
+| Ponto e vírgula trocados | `1,234.56` e `1.234,56` | Quando há os dois, o último é o decimal; sozinho, é sempre decimal (`1.500` vale 1,5) | `converter_numero` |
+| Negativo entre parênteses | `(150,00)` | Vira número negativo (não apareceu na base) | `converter_numero` |
+| Datas em vários formatos | `05/03/2025`, `2025-03-05` | Todas passam para o mesmo padrão de data | `converter_data` |
+| Resultado antes do edital | homologação anterior à publicação | O item fica, mas sem data de homologação e sem ciclo | etapa 7 |
+| Vazio disfarçado | `N/A`, `NULL`, `-`, `0` em texto | Vira vazio de verdade (o `0` só em texto, não em números) | `eh_nulo`, `limpar_texto` |
+| Acento quebrado | `ManutenÃ§Ã£o` | Volta a ser `Manutenção` | `consertar_acento` |
+| Caracteres invisíveis e espaços sobrando | espaço especial, TAB, quebra de linha | São removidos | `remover_invisiveis`, `tirar_espacos` |
+| Mesmo nome escrito de jeitos diferentes | `Prefeitura de X` / `PREFEITURA  DE X` | Coloca em maiúsculas e arruma os espaços, e os dois viram `PREFEITURA DE X` | `padronizar_nome` |
+| Itens impossíveis | valor ≤ 0, sigiloso, valor absurdo | Não entram na fato (99 itens, veja [Itens rejeitados](#itens-rejeitados)) | etapa 5 |
+
+### Decisões técnicas e por quê
+
+- **Toda a correção é feita no Python, e o banco é a segunda barreira.** O Python limpa e aplica as regras. Mesmo assim, o banco tem travas (quantidade > 0, valores não negativos, métricas só 0 ou 1) que recusam um dado errado se algum passar.
+- **Cada tabela tem um número próprio (`sk_…`).** CNPJ, UF e modalidade são guardados, mas as ligações usam esse número. Assim, a ligação não depende de um código que pode vir sujo.
+- **A linha "Não informado" (−1) não foi criada.** Ela só serve quando falta a ligação, e na nossa base toda linha da fato tem órgão, fornecedor, modalidade e localidade.
+- **A carga é feita de uma vez só, em lote.** Se qualquer parte der erro, nada é gravado, e o banco nunca fica com metade dos dados.
+- **As 5 métricas são calculadas no Python e gravadas na fato.** O SQL e o Power BI só somam colunas prontas, então os dois mostram o mesmo número.
+- **Na regra de obras, a palavra precisa estar inteira.** Isso evita que "cobrança" ou "dobradiça" sejam contadas como obra (veja [Palavras de obra escolhidas](#palavras-de-obra-escolhidas)).
+
+### As 5 métricas do ETL
+
+Cada métrica vale 1 (sim) ou 0 (não) em cada item, menos `valor_sobrepreco`, que é um valor em reais.
+
+| Métrica | Regra | Resultado |
+|---|---|---|
+| `sobrepreco` | 1 quando o item é comparável e o homologado é maior que o estimado | 27 itens |
+| `valor_sobrepreco` | Homologado − estimado nos itens com sobrepreço; 0 nos demais | R$ 44.440,34 |
+| `fornecedor_me_epp` | 1 quando o vencedor é Microempresa ou Empresa de Pequeno Porte; porte vazio conta 0 | 3.853 itens |
+| `contratacao_direta` | 1 quando a modalidade é Dispensa (8) ou Inexigibilidade (9) | 1.890 itens |
+| `ciclo_longo` | 1 quando o ciclo passa de 90 dias; item sem ciclo conta 0 | 830 itens (14,08% dos itens com ciclo) |
+
+### Discordâncias das regras
+
+Não houve discordância. Todas as regras de negócio da Controladoria foram seguidas como estão no enunciado, e os resultados bateram com a [prova real](#conferência-com-a-prova-real).
+
+## Banco de dados (modelo estrela)
+
+O banco `pncp_controladoria` tem uma tabela principal, a **fato**, com uma linha por item contratado (6.126 linhas). Ela fica no centro, ligada a 4 tabelas de apoio, as **dimensões**, que dizem **quem comprou**, **quem vendeu**, **como comprou** e **onde**.
+
+```mermaid
+erDiagram
+    dim_orgao ||--o{ fato_item_contratado : "quem comprou"
+    dim_fornecedor ||--o{ fato_item_contratado : "quem vendeu"
+    dim_modalidade ||--o{ fato_item_contratado : "como comprou"
+    dim_localidade ||--o{ fato_item_contratado : "onde"
+
+    dim_orgao {
+        int sk_orgao PK
+        varchar cnpj_orgao UK
+        varchar nome_orgao
+        varchar poder
+    }
+    dim_fornecedor {
+        int sk_fornecedor PK
+        varchar ni_fornecedor UK
+        varchar nome_fornecedor
+        varchar tipo_pessoa
+        varchar porte
+        varchar porte_descricao
+    }
+    dim_modalidade {
+        int sk_modalidade PK
+        int modalidade_id UK
+        varchar nome_modalidade
+        varchar grupo_modalidade
+    }
+    dim_localidade {
+        int sk_localidade PK
+        varchar uf_sigla UK
+        varchar uf_nome
+        varchar regiao
+    }
+    fato_item_contratado {
+        int sk_fato PK
+        varchar numero_controle_pncp
+        int numero_item
+        int sk_orgao FK
+        int sk_fornecedor FK
+        int sk_modalidade FK
+        int sk_localidade FK
+        date data_publicacao
+        date data_homologacao
+        text descricao_item
+        varchar perfil_gasto
+        decimal quantidade
+        decimal valor_unitario_estimado
+        decimal valor_total_estimado
+        decimal valor_unitario_homologado
+        decimal valor_total_homologado
+        smallint comparavel
+        decimal economia_valor
+        int dias_ciclo
+        smallint sobrepreco
+        decimal valor_sobrepreco
+        smallint fornecedor_me_epp
+        smallint contratacao_direta
+        smallint ciclo_longo
+    }
+```
+
+| Tabela | O que guarda | Linhas |
+|---|---|---|
+| `fato_item_contratado` | Cada item contratado, com valores, datas e as 5 métricas | 6.126 |
+| `dim_orgao` | Órgãos compradores (um por CNPJ) | 363 |
+| `dim_fornecedor` | Fornecedores vencedores (um por CNPJ/CPF) | 2.652 |
+| `dim_modalidade` | Formas de contratação (Pregão, Dispensa…) | 7 |
+| `dim_localidade` | Estados (UF) e suas regiões | 27 |
+
+Como ler o diagrama: **PK** é o número próprio da linha, **UK** é o código original (que não se repete) e **FK** é a ligação com a dimensão. Dinheiro é guardado como número decimal, datas como data e as métricas 0/1 como número pequeno. As tabelas são criadas pelo [`sql/01_criar_banco.sql`](sql/01_criar_banco.sql).
+
+## Como executar do zero
+
+**Você vai precisar de:** Python 3.10 ou mais novo, PostgreSQL rodando e Power BI Desktop (só para abrir o painel).
+
+1. **Baixar o projeto**
+   ```bash
+   git clone https://github.com/clebersimm/sctech-recuperacao.git
+   cd sctech-recuperacao
+   ```
+2. **Criar o ambiente e instalar as bibliotecas**
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate        # no Windows: .venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+3. **Preencher o `.env`.** Copie o `.env.example` para `.env` e coloque a senha do seu PostgreSQL:
+   ```
+   PG_HOST=localhost
+   PG_PORT=5432
+   PG_USER=postgres
+   PG_PASSWORD=sua_senha_aqui
+   PG_DATABASE=pncp_controladoria
+   ```
+4. **(Opcional) Ver os problemas dos dados brutos:** `python -m src.auditoria`
+5. **Conferir a limpeza:** `python -m src.limpeza` (todos os exemplos devem mostrar ✔)
+6. **Montar as tabelas:** `python -m src.montar_tabelas` (grava a fato e as 4 dimensões em `data/processed/` e mostra a conferência com a prova real)
+7. **Criar o banco e carregar:** `python -m src.carregar` (apaga e cria de novo o banco `pncp_controladoria`, cria as tabelas com o `sql/01_criar_banco.sql` e envia os dados; se der erro, nada é gravado)
+8. **Responder às perguntas:** abra o [`sql/02_perguntas.sql`](sql/02_perguntas.sql) no pgAdmin, no banco `pncp_controladoria`, e rode as consultas
+9. **Abrir o painel:** abra `powerbi/pncp_controladoria.pbix` no Power BI Desktop. Se a senha do banco for diferente, troque em *Transformar dados → Configurações da fonte de dados* e clique em *Atualizar*
+
+## Planejamento em Sprints
+
+O trabalho foi dividido em 8 Sprints. Cada uma tem um objetivo e termina com algo que pode ser conferido na prova real. O detalhe de cada tarefa está em [`docs/planejamento-sprint.md`](docs/planejamento-sprint.md).
+
+![Sprints do projeto](docs/img/sprints.png)
+
 ## Auditoria dos dados
 
 Antes de corrigir qualquer coisa, os 3 arquivos brutos de `data/raw/` foram auditados, ou seja, cada problema foi **contado**: quantos registros ele afeta.
@@ -510,3 +706,11 @@ Por UF (as 27, da maior para a menor despesa):
 | Bens | 3.310 | R$ 211.185.187,86 | 2,63% |
 
 **Conclusão:** a maior parte do dinheiro vai para **obras e engenharia** (60,82%), seguida de **serviços** (36,56%). **Bens** são a maioria dos itens (3.310), mas ficam com só 2,63% do volume. São muitas compras pequenas, enquanto as obras são poucas compras de valor alto.
+
+## Melhorias futuras
+
+- **Atualização automática:** buscar os dados direto do site do PNCP todo mês, sem depender de arquivos baixados à mão.
+- **Separar serviços contínuos de eventuais** na pergunta 6, para ver melhor o gasto que se repete todo ano.
+- **Juntar unidades do mesmo órgão** com uma lista oficial, em vez de depender só do nome padronizado.
+- **Guardar os itens rejeitados** em uma tabela própria, para a Controladoria poder conferir cada um.
+- **Alertas no painel** para itens com sobrepreço muito alto ou ciclo muito longo.
