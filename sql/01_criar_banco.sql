@@ -12,6 +12,12 @@
 -- NOT NULL = a coluna nao pode ficar vazia. So ficam sem NOT NULL as colunas que podem vir vazias:
 --   dim_fornecedor.porte (porte nao informado), fato.data_homologacao e fato.dias_ciclo (regra 7).
 --
+-- Chaves e ligacoes (cada regra tem nome, para a mensagem de erro dizer qual foi quebrada):
+--   pk_...  chave primaria: o numero proprio de cada linha (sk_)
+--   uq_...  valor unico: o codigo original (CNPJ, UF, modalidade) nao se repete
+--   fk_...  ligacao: cada linha da fato aponta para uma linha que existe na dimensao
+-- A linha "Nao informado" (sk = -1) nao foi criada: nenhuma ligacao da fato fica sem destino.
+--
 -- As dimensoes vem primeiro, porque a fato aponta para elas.
 -- =============================================================================================
 
@@ -23,7 +29,10 @@ CREATE TABLE dim_orgao (
     sk_orgao        INTEGER  NOT NULL,
     cnpj_orgao      VARCHAR  NOT NULL,
     nome_orgao      VARCHAR  NOT NULL,
-    poder           VARCHAR  NOT NULL
+    poder           VARCHAR  NOT NULL,
+
+    CONSTRAINT pk_dim_orgao       PRIMARY KEY (sk_orgao),
+    CONSTRAINT uq_dim_orgao_cnpj  UNIQUE (cnpj_orgao)
 );
 
 
@@ -36,7 +45,10 @@ CREATE TABLE dim_fornecedor (
     nome_fornecedor   VARCHAR  NOT NULL,
     tipo_pessoa       VARCHAR  NOT NULL,
     porte             VARCHAR,
-    porte_descricao   VARCHAR  NOT NULL
+    porte_descricao   VARCHAR  NOT NULL,
+
+    CONSTRAINT pk_dim_fornecedor     PRIMARY KEY (sk_fornecedor),
+    CONSTRAINT uq_dim_fornecedor_ni  UNIQUE (ni_fornecedor)
 );
 
 
@@ -47,7 +59,10 @@ CREATE TABLE dim_modalidade (
     sk_modalidade      INTEGER  NOT NULL,
     modalidade_id      INTEGER  NOT NULL,
     nome_modalidade    VARCHAR  NOT NULL,
-    grupo_modalidade   VARCHAR  NOT NULL
+    grupo_modalidade   VARCHAR  NOT NULL,
+
+    CONSTRAINT pk_dim_modalidade     PRIMARY KEY (sk_modalidade),
+    CONSTRAINT uq_dim_modalidade_id  UNIQUE (modalidade_id)
 );
 
 
@@ -58,7 +73,10 @@ CREATE TABLE dim_localidade (
     sk_localidade   INTEGER  NOT NULL,
     uf_sigla        VARCHAR  NOT NULL,
     uf_nome         VARCHAR  NOT NULL,
-    regiao          VARCHAR  NOT NULL
+    regiao          VARCHAR  NOT NULL,
+
+    CONSTRAINT pk_dim_localidade     PRIMARY KEY (sk_localidade),
+    CONSTRAINT uq_dim_localidade_uf  UNIQUE (uf_sigla)
 );
 
 
@@ -102,5 +120,15 @@ CREATE TABLE fato_item_contratado (
     valor_sobrepreco            DECIMAL(18,2)  NOT NULL,
     fornecedor_me_epp           SMALLINT       NOT NULL,
     contratacao_direta          SMALLINT       NOT NULL,
-    ciclo_longo                 SMALLINT       NOT NULL
+    ciclo_longo                 SMALLINT       NOT NULL,
+
+    -- chave primaria e item sem repetir (numero_controle_pncp + numero_item, juntos, sao unicos)
+    CONSTRAINT pk_fato_item_contratado  PRIMARY KEY (sk_fato),
+    CONSTRAINT uq_fato_item             UNIQUE (numero_controle_pncp, numero_item),
+
+    -- ligacoes: cada sk_ da fato precisa existir na dimensao
+    CONSTRAINT fk_fato_orgao       FOREIGN KEY (sk_orgao)       REFERENCES dim_orgao (sk_orgao),
+    CONSTRAINT fk_fato_fornecedor  FOREIGN KEY (sk_fornecedor)  REFERENCES dim_fornecedor (sk_fornecedor),
+    CONSTRAINT fk_fato_modalidade  FOREIGN KEY (sk_modalidade)  REFERENCES dim_modalidade (sk_modalidade),
+    CONSTRAINT fk_fato_localidade  FOREIGN KEY (sk_localidade)  REFERENCES dim_localidade (sk_localidade)
 );
