@@ -205,14 +205,14 @@ def main():
 
     fato["ni_fornecedor"] = fato["ni_fornecedor"].fillna("NAO-INFORMADO")
     # COMPLETE: uma linha por fornecedor: drop_duplicates pela chave natural "ni_fornecedor"
-    dim_fornecedor = fato.____("ni_fornecedor")[["ni_fornecedor", "nome_fornecedor", "tipo_pessoa", "porte",
+    dim_fornecedor = fato.drop_duplicates("ni_fornecedor")[["ni_fornecedor", "nome_fornecedor", "tipo_pessoa", "porte",
                                                  "porte_descricao"]].reset_index(drop=True)
     dim_fornecedor.insert(0, "sk_fornecedor", dim_fornecedor.index + 1)
     # COMPLETE: uma linha por modalidade: drop_duplicates pela chave natural "modalidade_id"
-    dim_modalidade = fato.drop_duplicates(____)[["modalidade_id", "nome_modalidade", "grupo_modalidade"]].reset_index(drop=True)
+    dim_modalidade = fato.drop_duplicates("modalidade_id")[["modalidade_id", "nome_modalidade", "grupo_modalidade"]].reset_index(drop=True)
     dim_modalidade.insert(0, "sk_modalidade", dim_modalidade.index + 1)
     # COMPLETE: uma linha por UF: drop_duplicates pela chave natural "uf_sigla"
-    dim_localidade = fato.drop_duplicates(____)[["uf_sigla", "uf_nome", "regiao"]].reset_index(drop=True)
+    dim_localidade = fato.drop_duplicates("uf_sigla")[["uf_sigla", "uf_nome", "regiao"]].reset_index(drop=True)
     dim_localidade.insert(0, "sk_localidade", dim_localidade.index + 1)
 
     # Troca a chave natural (CNPJ, sigla...) pela chave substituta (sk_) dentro da fato.
@@ -220,7 +220,7 @@ def main():
     for dim, chave, sk in [(dim_orgao, "cnpj_orgao", "sk_orgao"), (dim_fornecedor, "ni_fornecedor", "sk_fornecedor"),
                            (dim_modalidade, "modalidade_id", "sk_modalidade"), (dim_localidade, "uf_sigla", "sk_localidade")]:
         # COMPLETE: fato[sk] recebe a coluna chave da fato trocada pelo dicionario: fato[chave].map(dict(zip(dim[chave], dim[sk])))
-        fato[sk] = ____
+        fato[sk] = fato[chave].map(dict(zip(dim[chave], dim[sk])))
 
     colunas = ["numero_controle_pncp", "numero_item", "sk_orgao", "sk_fornecedor", "sk_modalidade", "sk_localidade",
                "data_publicacao", "data_homologacao", "descricao_item", "perfil_gasto", "quantidade",

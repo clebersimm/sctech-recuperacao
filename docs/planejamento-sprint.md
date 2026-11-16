@@ -21,7 +21,7 @@ Foi escolhido o documento markdown por manter a coerencia com o resto do desenvo
 | 0 | Preparação | Preparar repositório e ambiente e entender os dados | ✅ |
 | 1 | Auditoria | Descobrir e contar os problemas dos dados | ✅ |
 | 2 | Limpeza | Completar as funções que corrigem os problemas dos dados | ✅ |
-| 3 | Montar as tabelas | Aplicar as regras de negócio e montar a fato e as 4 dimensões | 🔄 |
+| 3 | Montar as tabelas | Aplicar as regras de negócio e montar a fato e as 4 dimensões | ✅ |
 | 4 | Banco de dados | Criar as tabelas no PostgreSQL e carregar os dados automaticamente | ⬜ |
 | 5 | Perguntas em SQL | Responder às 6 perguntas da Controladoria com consultas no banco | ⬜ |
 | 6 | Power BI | Montar o painel visual que conta a história das 6 perguntas | ⬜ |
@@ -82,7 +82,7 @@ Foi escolhido o documento markdown por manter a coerencia com o resto do desenvo
 | 3.3 | Calcular os valores e rejeitar itens impossíveis | Valor unitário × quantidade homologada; depois tirar itens com valores inválidos, sigilosos ou absurdos e contar quantos foram (etapas 4 e 5) | ✅ |
 | 3.4 | Calcular economia, tempo e tipo de gasto | Marcar o que é comparável e a economia, contar os dias entre a publicação e a homologação e classificar em Bens, Serviços ou Obras (etapas 6, 7 e 8) | ✅ |
 | 3.5 | Calcular as 5 métricas | Sobrepreço, valor do sobrepreço, fornecedor ME/EPP, contratação direta e ciclo longo (etapa 8B) | ✅ |
-| 3.6 | Montar as dimensões e conferir | Criar órgão, fornecedor, modalidade e localidade com seus números de identificação e comparar com a prova real (ex.: 6.126 itens na fato e 99 rejeitados) (etapas 9 e 10) | ⬜ |
+| 3.6 | Montar as dimensões e conferir | Criar órgão, fornecedor, modalidade e localidade com seus números de identificação e comparar com a prova real (ex.: 6.126 itens na fato e 99 rejeitados) (etapas 9 e 10) | ✅ |
 
 ---
 
