@@ -78,7 +78,7 @@ Foi escolhido o documento markdown por manter a coerencia com o resto do desenvo
 | # | Tarefa | Escopo | Status |
 |---|---|---|---|
 | 3.1 | Limpar os arquivos e criar as colunas novas | Usar as funções da Sprint 2 nos 3 arquivos e criar a região, o grupo da modalidade, o porte e o poder por extenso (etapas 1 e 1B) | ✅ |
-| 3.2 | Escolher o vencedor e juntar os arquivos | Descartar os cancelados, ficar com o 1º colocado (no empate, o de menor sequencial) e ligar compras, itens e vencedores; só entram itens com resultado (etapas 2 e 3) | ⬜ |
+| 3.2 | Escolher o vencedor e juntar os arquivos | Descartar os cancelados, ficar com o 1º colocado (no empate, o de menor sequencial) e ligar compras, itens e vencedores; só entram itens com resultado (etapas 2 e 3) | ✅ |
 | 3.3 | Calcular os valores e rejeitar itens impossíveis | Valor unitário × quantidade homologada; depois tirar itens com valores inválidos, sigilosos ou absurdos e contar quantos foram (etapas 4 e 5) | ⬜ |
 | 3.4 | Calcular economia, tempo e tipo de gasto | Marcar o que é comparável e a economia, contar os dias entre a publicação e a homologação e classificar em Bens, Serviços ou Obras (etapas 6, 7 e 8) | ⬜ |
 | 3.5 | Calcular as 5 métricas | Sobrepreço, valor do sobrepreço, fornecedor ME/EPP, contratação direta e ciclo longo (etapa 8B) | ⬜ |
