@@ -115,3 +115,97 @@ FROM (
     ORDER BY volume DESC
     LIMIT 10
 ) AS top10;
+
+
+-- #############################################################################################
+-- PERGUNTA 3 - EFICACIA POR MODALIDADE E CONTRATACAO DIRETA
+-- Quanto do volume e contratado sem licitacao (Dispensa e Inexigibilidade) e como o ciclo dessas
+-- contratacoes se compara ao das demais? Como os grupos de modalidade se comparam?
+-- #############################################################################################
+
+-- 3.1 Volume contratado sem licitacao (contratacao_direta = 1: Dispensa ou Inexigibilidade)
+--     Prova real: 1.890 itens | R$ 253.252.588,63 | 3,15% do volume
+SELECT
+    SUM(contratacao_direta)                                                      AS itens_contratacao_direta,
+    SUM(CASE WHEN contratacao_direta = 1 THEN valor_total_homologado ELSE 0 END) AS volume_contratacao_direta,
+    ROUND(SUM(CASE WHEN contratacao_direta = 1 THEN valor_total_homologado ELSE 0 END) * 100.0
+          / NULLIF(SUM(valor_total_homologado), 0), 2)                           AS volume_contratacao_direta_pct
+FROM fato_item_contratado;
+
+
+-- 3.2 Ciclo da contratacao direta x demais (AVG ja ignora os itens sem ciclo)
+--     % de ciclo longo = itens com ciclo longo / itens COM ciclo (nunca / total de itens)
+SELECT
+    CASE WHEN contratacao_direta = 1 THEN 'Contratação direta' ELSE 'Demais modalidades' END AS tipo,
+    COUNT(dias_ciclo)                                                AS itens_com_ciclo,
+    ROUND(AVG(dias_ciclo), 1)                                        AS ciclo_medio_dias,
+    ROUND(SUM(ciclo_longo) * 100.0 / NULLIF(COUNT(dias_ciclo), 0), 2) AS ciclo_longo_pct
+FROM fato_item_contratado
+GROUP BY contratacao_direta
+ORDER BY contratacao_direta DESC;
+
+
+-- 3.3 Comparacao entre os grupos de modalidade
+--     Prova real (itens): Pregao 3.051 | Contratacao direta 1.890 | Credenciamento 601 | Concorrencia 584
+--     Credenciamento fica com economia_pct vazia: nao tem item comparavel (e esperado, nao e erro)
+SELECT
+    m.grupo_modalidade,
+    COUNT(*)                                                                    AS itens,
+    SUM(f.valor_total_homologado)                                               AS volume,
+    ROUND(SUM(f.valor_total_homologado) * 100.0
+          / (SELECT SUM(valor_total_homologado) FROM fato_item_contratado), 2)  AS volume_pct,
+    ROUND(SUM(f.economia_valor) * 100.0
+          / NULLIF(SUM(CASE WHEN f.comparavel = 1 THEN f.valor_total_estimado ELSE 0 END), 0), 2)
+                                                                                AS economia_pct,
+    ROUND(AVG(f.dias_ciclo), 1)                                                 AS ciclo_medio_dias
+FROM fato_item_contratado f
+JOIN dim_modalidade m ON m.sk_modalidade = f.sk_modalidade
+GROUP BY m.grupo_modalidade
+ORDER BY volume DESC;
+
+
+-- #############################################################################################
+-- PERGUNTA 4 - TEMPO DO CICLO DE COMPRAS
+-- Quais orgaos e modalidades tem a maior proporcao de itens com ciclo longo (acima de 90 dias)?
+-- Qual a duracao media (em dias) entre o edital e a homologacao, segmentada por modalidade?
+-- #############################################################################################
+
+-- 4.1 Os 10 orgaos com maior proporcao de ciclo longo
+--     Agrupa pelo NOME padronizado (o mesmo orgao tem varios CNPJ) e so orgaos com 5 ou mais itens com ciclo.
+--     Empate no %: fica na frente quem tem mais itens com ciclo.
+SELECT
+    o.nome_orgao,
+    COUNT(f.dias_ciclo)                                     AS itens_com_ciclo,
+    SUM(f.ciclo_longo)                                      AS itens_ciclo_longo,
+    ROUND(SUM(f.ciclo_longo) * 100.0 / COUNT(f.dias_ciclo), 2) AS ciclo_longo_pct,
+    ROUND(AVG(f.dias_ciclo), 1)                             AS ciclo_medio_dias
+FROM fato_item_contratado f
+JOIN dim_orgao o ON o.sk_orgao = f.sk_orgao
+GROUP BY o.nome_orgao
+HAVING COUNT(f.dias_ciclo) >= 5
+ORDER BY ciclo_longo_pct DESC, itens_com_ciclo DESC
+LIMIT 10;
+
+
+-- 4.2 Por modalidade: proporcao de ciclo longo e duracao media
+--     Prova real (geral): 5.896 itens com ciclo | ciclo medio 48,1 dias | 830 com ciclo longo (14,1%)
+SELECT
+    m.nome_modalidade,
+    COUNT(f.dias_ciclo)                                                  AS itens_com_ciclo,
+    SUM(f.ciclo_longo)                                                   AS itens_ciclo_longo,
+    ROUND(SUM(f.ciclo_longo) * 100.0 / NULLIF(COUNT(f.dias_ciclo), 0), 2) AS ciclo_longo_pct,
+    ROUND(AVG(f.dias_ciclo), 1)                                          AS ciclo_medio_dias
+FROM fato_item_contratado f
+JOIN dim_modalidade m ON m.sk_modalidade = f.sk_modalidade
+GROUP BY m.nome_modalidade
+ORDER BY ciclo_longo_pct DESC;
+
+
+-- 4.3 Total geral do ciclo (referencia para comparar as modalidades)
+SELECT
+    COUNT(dias_ciclo)                                      AS itens_com_ciclo,
+    ROUND(AVG(dias_ciclo), 1)                              AS ciclo_medio_dias,
+    MAX(dias_ciclo)                                        AS ciclo_maximo_dias,
+    SUM(ciclo_longo)                                       AS itens_ciclo_longo,
+    ROUND(SUM(ciclo_longo) * 100.0 / COUNT(dias_ciclo), 2) AS ciclo_longo_pct
+FROM fato_item_contratado;

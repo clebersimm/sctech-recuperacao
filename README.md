@@ -334,3 +334,63 @@ Os 10 maiores fornecedores em volume (fornecedor = CNPJ/CPF, então filiais cont
 | 10 | ARTELESTE CONSTRUCOES LIMITADA | Demais | 1 | R$ 125.884.500,00 | 1,56% |
 
 **Conclusão:** as micro e pequenas empresas ganham a maioria dos itens (62,90%), mas ficam com só 19,93% do dinheiro, porque vencem compras menores. Já os 10 maiores fornecedores, de um total de 2.652, ficam com 41,43% de todo o volume. Cada um deles ganhou **um único item**: a concentração vem de poucas compras muito grandes, e não de fornecedores que vencem muitas vezes. Desses 10 itens, 7 são de Obras e engenharia e 3 de Serviços, entre eles o maior de todos (NOW SEGUROS SA, R$ 1,06 bilhão).
+
+### Pergunta 3 – Eficácia por modalidade e contratação direta
+
+| Indicador | Resultado |
+|---|---|
+| Itens contratados sem licitação (Dispensa e Inexigibilidade) | 1.890 |
+| Volume contratado sem licitação | R$ 253.252.588,63 (**3,15%** do volume) |
+
+Ciclo da contratação direta comparado ao das demais modalidades (o % de ciclo longo é calculado sobre os itens **com** ciclo):
+
+| Tipo | Itens com ciclo | Ciclo médio | % ciclo longo |
+|---|---|---|---|
+| Contratação direta | 1.661 | 9,1 dias | 0,48% |
+| Demais modalidades | 4.235 | 63,4 dias | 19,41% |
+
+Comparação entre os grupos de modalidade:
+
+| Grupo | Itens | Volume | % do volume | Economia % | Ciclo médio |
+|---|---|---|---|---|---|
+| Concorrência | 584 | R$ 5.145.245.880,16 | 63,96% | 13,67% | 101,2 dias |
+| Credenciamento | 601 | R$ 2.141.301.557,16 | 26,62% | — | 62,7 dias |
+| Pregão | 3.051 | R$ 504.698.779,79 | 6,27% | 23,93% | 56,3 dias |
+| Contratação direta | 1.890 | R$ 253.252.588,63 | 3,15% | 8,04% | 9,1 dias |
+
+No Credenciamento a economia % fica vazia (—), porque nenhum item dessa modalidade é comparável (regra 6). Isso é o esperado, e não um erro.
+
+**Conclusão:** a contratação sem licitação é pequena em dinheiro (3,15% do volume) e muito mais rápida: 9,1 dias contra 63,4 dias das demais. Em troca, ela dá pouco desconto (8,04%). O **Pregão** tem o melhor desconto (23,93%) e é a modalidade com mais itens. A **Concorrência** concentra a maior parte do dinheiro (63,96%) e é a mais lenta, passando de 100 dias em média.
+
+### Pergunta 4 – Tempo do ciclo de compras
+
+No total, 5.896 itens têm ciclo (dias entre a publicação do edital e a homologação). A **duração média é de 48,1 dias**, o máximo é de 611 dias, e 830 itens (14,08%) passaram de 90 dias.
+
+Os 10 órgãos com maior proporção de ciclo longo. Os órgãos foram agrupados pelo nome padronizado e entram só os que têm 5 ou mais itens com ciclo, num total de 142 órgãos:
+
+| # | Órgão | Itens com ciclo | Com ciclo longo | % ciclo longo | Ciclo médio |
+|---|---|---|---|---|---|
+| 1 | CONSELHO FEDERAL DE ENGENHARIA E AGRONOMIA | 20 | 20 | 100,00% | 223,0 dias |
+| 2 | INSTITUTO FEDERAL DE EDUCACAO,CIENCIA E TECNOLOGIA DE RONDONIA | 9 | 9 | 100,00% | 125,0 dias |
+| 3 | UNIVERSIDADE FEDERAL DE CAMPINA GRANDE | 16 | 14 | 87,50% | 266,3 dias |
+| 4 | DNIT - DEPARTAMENTO NACIONAL DE INFRAEST DE TRANSPORTES | 62 | 52 | 83,87% | 156,2 dias |
+| 5 | CONSELHO REGIONAL DE MEDICINA DO ESTADO DE MINAS GERAIS | 6 | 5 | 83,33% | 100,3 dias |
+| 6 | UNIVERSIDADE FEDERAL DO ESTADO DO RIO DE JANEIRO | 26 | 20 | 76,92% | 135,4 dias |
+| 7 | INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE SERGIPE | 31 | 21 | 67,74% | 74,9 dias |
+| 8 | INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DO PARANA | 30 | 20 | 66,67% | 107,8 dias |
+| 9 | DEFENSORIA PUBLICA DA UNIAO | 11 | 7 | 63,64% | 100,0 dias |
+| 10 | CONSELHO REGIONAL DE ENGENHARIA E AGRONOMIA DO RS | 38 | 24 | 63,16% | 80,5 dias |
+
+Por modalidade:
+
+| Modalidade | Itens com ciclo | Com ciclo longo | % ciclo longo | Ciclo médio |
+|---|---|---|---|---|
+| Concorrência - Presencial | 63 | 59 | 93,65% | 187,5 dias |
+| Concorrência - Eletrônica | 520 | 167 | 32,12% | 90,7 dias |
+| Credenciamento | 601 | 127 | 21,13% | 62,7 dias |
+| Pregão - Eletrônico | 3.046 | 469 | 15,40% | 56,4 dias |
+| Dispensa | 1.275 | 7 | 0,55% | 11,6 dias |
+| Inexigibilidade | 386 | 1 | 0,26% | 0,6 dia |
+| Pregão - Presencial | 5 | 0 | 0,00% | 22,2 dias |
+
+**Conclusão:** a compra média leva 48,1 dias do edital à homologação, mas a modalidade muda muito esse tempo. A **Concorrência Presencial** é a mais lenta: 93,65% dos itens passam de 90 dias e a média é de 187,5 dias. Já a Dispensa e a Inexigibilidade quase nunca passam de 90 dias. Entre os órgãos, o **DNIT** chama atenção por juntar volume e demora: 52 dos seus 62 itens tiveram ciclo longo. Nos órgãos com poucos itens (por exemplo, 6 ou 9), uma única compra demorada já muda bastante o percentual.
