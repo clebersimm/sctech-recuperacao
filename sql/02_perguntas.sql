@@ -209,3 +209,69 @@ SELECT
     SUM(ciclo_longo)                                       AS itens_ciclo_longo,
     ROUND(SUM(ciclo_longo) * 100.0 / COUNT(dias_ciclo), 2) AS ciclo_longo_pct
 FROM fato_item_contratado;
+
+
+-- #############################################################################################
+-- PERGUNTA 5 - DISTRIBUICAO REGIONAL
+-- Quais estados e regioes concentram as maiores despesas e quais apresentam os melhores indicadores
+-- de desconto? Onde a contratacao direta tem maior volume relativo?
+-- #############################################################################################
+-- O numero de itens fica ao lado de cada percentual: em UF com poucos itens, uma unica compra muda o resultado.
+
+-- 5.1 Por UF (as 27), ordenado pela despesa (volume)
+SELECT
+    l.uf_sigla,
+    l.regiao,
+    COUNT(*)                                                                    AS itens,
+    SUM(f.valor_total_homologado)                                               AS volume,
+    ROUND(SUM(f.valor_total_homologado) * 100.0
+          / (SELECT SUM(valor_total_homologado) FROM fato_item_contratado), 2)  AS volume_pct,
+    SUM(f.comparavel)                                                           AS itens_comparaveis,
+    ROUND(SUM(f.economia_valor) * 100.0
+          / NULLIF(SUM(CASE WHEN f.comparavel = 1 THEN f.valor_total_estimado ELSE 0 END), 0), 2)
+                                                                                AS economia_pct,
+    SUM(f.contratacao_direta)                                                   AS itens_contratacao_direta,
+    ROUND(SUM(CASE WHEN f.contratacao_direta = 1 THEN f.valor_total_homologado ELSE 0 END) * 100.0
+          / NULLIF(SUM(f.valor_total_homologado), 0), 2)                        AS volume_contratacao_direta_pct
+FROM fato_item_contratado f
+JOIN dim_localidade l ON l.sk_localidade = f.sk_localidade
+GROUP BY l.uf_sigla, l.regiao
+ORDER BY volume DESC;
+
+
+-- 5.2 Por regiao, ordenado pela despesa (volume)
+SELECT
+    l.regiao,
+    COUNT(*)                                                                    AS itens,
+    SUM(f.valor_total_homologado)                                               AS volume,
+    ROUND(SUM(f.valor_total_homologado) * 100.0
+          / (SELECT SUM(valor_total_homologado) FROM fato_item_contratado), 2)  AS volume_pct,
+    SUM(f.comparavel)                                                           AS itens_comparaveis,
+    ROUND(SUM(f.economia_valor) * 100.0
+          / NULLIF(SUM(CASE WHEN f.comparavel = 1 THEN f.valor_total_estimado ELSE 0 END), 0), 2)
+                                                                                AS economia_pct,
+    SUM(f.contratacao_direta)                                                   AS itens_contratacao_direta,
+    ROUND(SUM(CASE WHEN f.contratacao_direta = 1 THEN f.valor_total_homologado ELSE 0 END) * 100.0
+          / NULLIF(SUM(f.valor_total_homologado), 0), 2)                        AS volume_contratacao_direta_pct
+FROM fato_item_contratado f
+JOIN dim_localidade l ON l.sk_localidade = f.sk_localidade
+GROUP BY l.regiao
+ORDER BY volume DESC;
+
+
+-- #############################################################################################
+-- PERGUNTA 6 - PERFIL DOS GASTOS
+-- Como os recursos se distribuem entre bens, servicos e obras e engenharia?
+-- #############################################################################################
+
+-- 6.1 Volume por perfil do gasto (perfil_gasto e coluna da propria fato: nao precisa de JOIN)
+--     Prova real: Obras e engenharia 60,8% | Servicos 36,6% | Bens 2,6%   (itens: 967 | 1.849 | 3.310)
+SELECT
+    perfil_gasto,
+    COUNT(*)                                                                    AS itens,
+    SUM(valor_total_homologado)                                                 AS volume,
+    ROUND(SUM(valor_total_homologado) * 100.0
+          / (SELECT SUM(valor_total_homologado) FROM fato_item_contratado), 2)  AS volume_pct
+FROM fato_item_contratado
+GROUP BY perfil_gasto
+ORDER BY volume DESC;

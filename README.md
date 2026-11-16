@@ -394,3 +394,65 @@ Por modalidade:
 | Pregão - Presencial | 5 | 0 | 0,00% | 22,2 dias |
 
 **Conclusão:** a compra média leva 48,1 dias do edital à homologação, mas a modalidade muda muito esse tempo. A **Concorrência Presencial** é a mais lenta: 93,65% dos itens passam de 90 dias e a média é de 187,5 dias. Já a Dispensa e a Inexigibilidade quase nunca passam de 90 dias. Entre os órgãos, o **DNIT** chama atenção por juntar volume e demora: 52 dos seus 62 itens tiveram ciclo longo. Nos órgãos com poucos itens (por exemplo, 6 ou 9), uma única compra demorada já muda bastante o percentual.
+
+### Pergunta 5 – Distribuição regional
+
+O número de itens aparece ao lado de cada percentual. Numa UF com poucos itens, uma única compra muda bastante o resultado.
+
+Por região:
+
+| Região | Itens | Volume | % do volume | Itens comparáveis | Economia % | Itens de contratação direta | % do volume em contratação direta |
+|---|---|---|---|---|---|---|---|
+| Centro-Oeste | 940 | R$ 3.559.879.991,73 | 44,25% | 757 | 17,02% | 235 | 0,48% |
+| Nordeste | 1.155 | R$ 1.850.420.285,02 | 23,00% | 1.006 | 14,18% | 318 | 3,95% |
+| Sudeste | 2.072 | R$ 1.083.309.811,49 | 13,47% | 1.925 | 11,62% | 764 | 11,85% |
+| Sul | 1.325 | R$ 1.021.624.955,41 | 12,70% | 1.203 | 7,96% | 345 | 3,03% |
+| Norte | 634 | R$ 529.263.762,09 | 6,58% | 566 | 21,43% | 228 | 0,68% |
+
+Por UF (as 27, da maior para a menor despesa):
+
+| UF | Região | Itens | Volume | % do volume | Itens comparáveis | Economia % | Itens de contratação direta | % do volume em contratação direta |
+|---|---|---|---|---|---|---|---|---|
+| DF | Centro-Oeste | 585 | R$ 3.135.638.456,35 | 38,98% | 489 | 15,90% | 136 | 0,32% |
+| RS | Sul | 845 | R$ 820.584.056,64 | 10,20% | 798 | 7,18% | 213 | 0,51% |
+| RJ | Sudeste | 933 | R$ 461.925.602,27 | 5,74% | 891 | 11,57% | 292 | 6,93% |
+| PI | Nordeste | 70 | R$ 408.389.525,89 | 5,08% | 62 | 5,98% | 27 | 3,82% |
+| SP | Sudeste | 517 | R$ 393.783.392,48 | 4,90% | 465 | 9,22% | 229 | 23,64% |
+| PE | Nordeste | 170 | R$ 277.610.822,64 | 3,45% | 145 | 18,75% | 65 | 1,51% |
+| CE | Nordeste | 160 | R$ 273.063.635,47 | 3,39% | 127 | 7,88% | 76 | 1,89% |
+| BA | Nordeste | 222 | R$ 243.705.954,94 | 3,03% | 209 | 25,01% | 56 | 1,36% |
+| MT | Centro-Oeste | 77 | R$ 240.920.586,26 | 2,99% | 50 | 25,84% | 16 | 0,08% |
+| AC | Norte | 40 | R$ 207.336.488,34 | 2,58% | 39 | 26,71% | 11 | 0,25% |
+| AL | Nordeste | 51 | R$ 200.475.716,34 | 2,49% | 28 | 16,43% | 1 | 0,01% |
+| MG | Sudeste | 496 | R$ 198.701.363,92 | 2,47% | 450 | 14,34% | 154 | 1,27% |
+| RN | Nordeste | 225 | R$ 193.722.442,76 | 2,41% | 196 | 16,42% | 28 | 0,94% |
+| MS | Centro-Oeste | 170 | R$ 151.844.486,73 | 1,89% | 126 | 12,13% | 53 | 2,10% |
+| AM | Norte | 208 | R$ 150.043.153,77 | 1,87% | 202 | 14,92% | 60 | 1,05% |
+| PR | Sul | 327 | R$ 124.166.989,28 | 1,54% | 277 | 12,17% | 91 | 20,04% |
+| MA | Nordeste | 59 | R$ 107.784.353,34 | 1,34% | 56 | 22,17% | 29 | 0,27% |
+| PA | Norte | 192 | R$ 82.949.670,30 | 1,03% | 169 | 19,11% | 78 | 1,15% |
+| PB | Nordeste | 113 | R$ 78.243.676,65 | 0,97% | 104 | 16,88% | 15 | 1,90% |
+| SC | Sul | 153 | R$ 76.873.909,49 | 0,96% | 128 | 11,59% | 41 | 2,50% |
+| SE | Nordeste | 85 | R$ 67.424.156,99 | 0,84% | 79 | 6,47% | 21 | 61,15% |
+| RR | Norte | 26 | R$ 47.718.188,56 | 0,59% | 22 | 19,81% | 15 | 0,06% |
+| GO | Centro-Oeste | 108 | R$ 31.476.462,39 | 0,39% | 92 | 12,64% | 30 | 12,12% |
+| ES | Sudeste | 126 | R$ 28.899.452,82 | 0,36% | 119 | 22,64% | 89 | 2,49% |
+| RO | Norte | 113 | R$ 25.255.010,96 | 0,31% | 88 | 21,36% | 27 | 0,38% |
+| AP | Norte | 31 | R$ 8.075.852,27 | 0,10% | 26 | 22,65% | 23 | 1,26% |
+| TO | Norte | 24 | R$ 7.885.397,89 | 0,10% | 20 | 17,80% | 14 | 4,17% |
+
+**Conclusão:**
+
+- **Maiores despesas:** o **Centro-Oeste** concentra 44,25% do volume, quase todo no **DF** (38,98%). Depois vêm o RS (10,20%) e o RJ (5,74%).
+- **Melhores descontos:** entre as regiões, o **Norte** (21,43%). Entre as UFs, o AC (26,71%), o MT (25,84%) e a BA (25,01%). O desconto do AC e do MT vem de poucos itens comparáveis (39 e 50), então é um resultado mais frágil que o da BA (209). O **Sul** tem o menor desconto entre as regiões (7,96%).
+- **Contratação direta:** entre as regiões, o **Sudeste** tem o maior volume relativo (11,85%). Entre as UFs, **SE** se destaca muito: 61,15% do seu volume é contratado sem licitação. Depois vêm SP (23,64%) e PR (20,04%).
+
+### Pergunta 6 – Perfil dos gastos
+
+| Perfil | Itens | Volume | % do volume |
+|---|---|---|---|
+| Obras e engenharia | 967 | R$ 4.892.362.732,70 | 60,82% |
+| Serviços | 1.849 | R$ 2.940.950.885,18 | 36,56% |
+| Bens | 3.310 | R$ 211.185.187,86 | 2,63% |
+
+**Conclusão:** a maior parte do dinheiro vai para **obras e engenharia** (60,82%), seguida de **serviços** (36,56%). **Bens** são a maioria dos itens (3.310), mas ficam com só 2,63% do volume. São muitas compras pequenas, enquanto as obras são poucas compras de valor alto.
